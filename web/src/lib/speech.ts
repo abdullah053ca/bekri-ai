@@ -27,7 +27,7 @@ class VoiceEngine {
   /** Sunucu sesi açık mı (seçili ses 'browser' değilse) */
   serverTts = false;
   /** Konuşma hızı (playbackRate), 0.9–1.3 */
-  rate = 1.08;
+  rate = 0.98;
   /** Bu çalmada kullanılan hız: ElevenLabs sesleri hızı sunucuda alır, tarayıcıda esnetilmez (1,0) */
   private playRate = 1.08;
   /** "Jarvis efekti": sahne geçiş sesi */
@@ -53,7 +53,7 @@ class VoiceEngine {
   set browserVoiceName(v: string | null) { safeSet('jarvis.browserVoice', v); }
   browserVoices(): SpeechSynthesisVoice[] {
     if (!('speechSynthesis' in window)) return [];
-    return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('tr'));
+    return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('ar'));
   }
 
   /** Kullanıcı dokunuşuyla açılmış ses bağlamı (alkış dinleyicisi aynı bağlamı kullanır); henüz yoksa null. */
@@ -311,7 +311,7 @@ class VoiceEngine {
     if (!('speechSynthesis' in window)) return new Promise(r => setTimeout(r, Math.max(1500, text.length * 55)));
     return new Promise(resolve => {
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'tr-TR';
+      u.lang = 'ar-SY';
       const voices = this.browserVoices();
       const chosen = this.browserVoiceName ? voices.find(v => v.name === this.browserVoiceName) : undefined;
       const preferred = chosen || voices.find(v => /yelda|google|premium|enhanced/i.test(v.name)) || voices[0];
@@ -358,7 +358,7 @@ export function createRecognizer(h: { onInterim(t: string): void; onFinal(t: str
   const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   if (!SR) return null;
   const rec = new SR();
-  rec.lang = 'tr-TR';
+  rec.lang = 'ar-SY';
   rec.interimResults = true;
   rec.continuous = false;
   let finalText = '';

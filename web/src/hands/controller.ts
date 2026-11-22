@@ -17,9 +17,9 @@ export interface Kontrol { jest: Gesture; ad: string; sure: number; eylem: Eylem
 
 /** Jest → Jarvis eylemi. Değiştirmek için bu listeyi düzenleyin. `sure`: kaç ms basılı tutulmalı. */
 export const KONTROLLER: Kontrol[] = [
-  { jest: 'basparmak', ad: '☕ TÜRK KAHVESİ', sure: 1000, eylem: { tip: 'komut', metin: 'Jarvis, bana bol köpüklü bir Türk kahvesi yap' } },
-  { jest: 'zafer', ad: '💡 SALON IŞIĞI', sure: 900, eylem: { tip: 'isik', id: 'salon_isik' } },
-  { jest: 'yumruk', ad: '■ SUSTUR', sure: 1800, eylem: { tip: 'sustur' } },
+  { jest: 'basparmak', ad: '☕ قهوة تركية', sure: 1000, eylem: { tip: 'komut', metin: 'بكري، حضّر لي قهوة تركية مع رغوة كثيفة' } },
+  { jest: 'zafer', ad: '💡 ضوء الصالون', sure: 900, eylem: { tip: 'isik', id: 'salon_isik' } },
+  { jest: 'yumruk', ad: '■ كتم الصوت', sure: 1800, eylem: { tip: 'sustur' } },
 ];
 
 // ------------------------------------------------------------------

@@ -57,7 +57,7 @@ export const SystemPanel = memo(function SystemPanel({
   loading: boolean;
 }) {
   return (
-    <DashPanel index={index} label="Sistem" demo={demo} className="sys">
+    <DashPanel index={index} label="النظام" demo={demo} className="sys">
       {loading || !sys || !news ? (
         <NoData loading={loading} />
       ) : (
@@ -67,23 +67,23 @@ export const SystemPanel = memo(function SystemPanel({
           <dl className="kv">
             <div>
               <dt>routellm</dt>
-              <dd><i className={'dot ' + latencyClass(sys)} />{sys.routellm_ok && sys.routellm_ms !== null ? `${sys.routellm_ms} ms` : 'erişilemiyor'}</dd>
+              <dd><i className={'dot ' + latencyClass(sys)} />{sys.routellm_ok && sys.routellm_ms !== null ? `${sys.routellm_ms} ms` : 'غير متاح'}</dd>
             </div>
             <div>
-              <dt>kaynaklar</dt>
+              <dt>المصادر</dt>
               <dd className={news.sources_ok === news.sources_total ? 'good' : news.sources_ok ? 'warn' : 'bad'}>
                 {news.sources_ok}/{news.sources_total} {news.sources_ok === news.sources_total ? '✓' : ''}
               </dd>
             </div>
             <div>
-              <dt>cihazlar</dt>
+              <dt>الأجهزة</dt>
               <dd className="sys-devices">
                 {(['masaustu', 'tablet', 'telefon'] as Device[]).map(d => (
                   <span key={d} className={online.includes(d) ? 'on' : ''} title={DEVICE_LABEL[d]}><DeviceIcon d={d} /></span>
                 ))}
               </dd>
             </div>
-            <div><dt>beyin</dt><dd className="mono">{sys.model}</dd></div>
+            <div><dt>النموذج</dt><dd className="mono">{sys.model}</dd></div>
           </dl>
         </div>
       )}

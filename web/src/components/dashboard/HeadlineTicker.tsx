@@ -28,7 +28,7 @@ export const HeadlineTicker = memo(function HeadlineTicker({
   return (
     <div className="ticker">
       <div className="tk-label">
-        <span className="tk-pulse" />son dakika{demo && <span className="demo-tag">demo</span>}
+        <span className="tk-pulse" />عاجل{demo && <span className="demo-tag">تجريبي</span>}
       </div>
       <div className="tk-viewport">
         {items.length ? (
@@ -37,7 +37,7 @@ export const HeadlineTicker = memo(function HeadlineTicker({
             <div className="tk-row" aria-hidden="true">{row(1)}</div>
           </div>
         ) : (
-          <div className="no-data">{loading ? 'yükleniyor…' : 'veri alınamadı'}</div>
+          <div className="no-data">{loading ? 'جارٍ التحميل…' : 'تعذّر تحميل البيانات'}</div>
         )}
       </div>
     </div>

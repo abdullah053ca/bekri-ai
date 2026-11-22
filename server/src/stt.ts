@@ -26,7 +26,7 @@ export async function transcribe(audio: Buffer, mime: string): Promise<{ text: s
     const form = new FormData();
     form.append('file', new Blob([new Uint8Array(audio)], { type: mime }), `kayit.${format}`);
     form.append('model', STT_MODEL);
-    form.append('language', 'tr');
+    form.append('prompt', 'The audio may contain Arabic (Syrian dialect or Modern Standard Arabic), Turkish, or a natural mix of both. Transcribe the spoken words exactly in the language used.');
     const r = await fetch(`${BASE_URL}/audio/transcriptions`, { method: 'POST', headers: { Authorization: `Bearer ${API_KEY}` }, body: form }).catch(() => null);
     if (r?.ok) {
       transcriptionsEndpoint = true;
@@ -43,7 +43,7 @@ export async function transcribe(audio: Buffer, mime: string): Promise<{ text: s
         role: 'user',
         content: [
           { type: 'input_audio', input_audio: { data: audio.toString('base64'), format } },
-          { type: 'text', text: 'Bu Türkçe konuşmayı kelimesi kelimesine yazıya dök. Sadece duyduğun metni yaz; tırnak, açıklama ya da başlık ekleme. Konuşma yoksa hiçbir şey yazma.' },
+          { type: 'text', text: 'Bu ses kaydındaki konuşmayı Arapça (Suriye lehçesi veya فصحى), Türkçe ya da ikisinin karışımı olabilir; duyulduğu dilde kelimesi kelimesine yaz. Sadece duyduğun metni yaz; açıklama veya başlık ekleme. Konuşma yoksa boş bırak.' },
         ],
       },
     ],
@@ -54,6 +54,6 @@ export async function transcribe(audio: Buffer, mime: string): Promise<{ text: s
   // Sessiz kayıtta model bazen kendi talimatını geri döndürüyor ("Türkçeyi kelimesi kelimesine yazıya dök"):
   // bu, kullanıcının sözü değil. Boş say (istemci "Sizi duyamadım" der).
   const f = text.toLocaleLowerCase('tr');
-  if (/kelimesi kelimesine|yazıya dök|duyduğun metni|konuşma yok|ses yok|^\W*$/.test(f)) text = '';
+  if (/kelimesi kelimesine|yazıya dök|duyduğun metni|konuşma yok|ses yok|transcribe the spoken|^\W*$/.test(f)) text = '';
   return { text, model: resp.model ?? STT_MODEL, ms: Date.now() - t0 };
 }

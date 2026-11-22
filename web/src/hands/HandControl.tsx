@@ -46,12 +46,12 @@ export interface HandControlProps {
 }
 
 const LEGEND: [string, string][] = [
-  ['✋', 'ateş'], ['✋✋', 'mühür'], ['🤏', 'gezegen'], ['🤏🤏', 'büyüt'], ['✊→✋', 'patlat'], ['☝️☝️', 'şimşek'], ['☝️', 'iz'],
+  ['✋', 'نار'], ['✋✋', 'ختم'], ['🤏', 'كوكب'], ['🤏🤏', 'تكبير'], ['✊→✋', 'انفجار'], ['☝️☝️', 'برق'], ['☝️', 'أثر'],
   ...KONTROLLER.map(k => [k.jest === 'basparmak' ? '👍' : k.jest === 'zafer' ? '✌️' : k.jest === 'yumruk' ? '✊ tut' : k.jest, k.ad.replace(/^\S+\s/, '').toLocaleLowerCase('tr')] as [string, string]),
 ];
 
 /** Kitap dışarıdayken (seçili/tutuldu/açık) jest listesi */
-const LEGEND_KITAP: [string, string][] = [['☝️', 'kitap seç'], ['🤏', 'tut ve çek'], ['✋⇠', 'sayfa çevir'], ['👍', 'özeti oku'], ['✊', 'rafa koy'], ['✋⤴', 'ileri it: rafa koy']];
+const LEGEND_KITAP: [string, string][] = [['☝️', 'اختيار كتاب'], ['🤏', 'إمساك وسحب'], ['✋⇠', 'قلب الصفحة'], ['👍', 'قراءة الملخص'], ['✊', 'وضع على الرف'], ['✋⤴', 'ادفع للأمام: ضع على الرف']];
 
 export default function HandControl(p: HandControlProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -77,7 +77,7 @@ export default function HandControl(p: HandControlProps) {
   const faceOn = useRef(face);
   const ayarRef = useRef(ayar);
   useEffect(() => { faceOn.current = face; ayarRef.current = ayar; }, [face, ayar]);
-  const [status, setStatus] = useState<string>('kamera açılıyor…');
+  const [status, setStatus] = useState<string>('جارٍ تشغيل الكاميرا…');
   const [err, setErr] = useState<string | null>(null);
   const [hud, setHud] = useState(true);
   const [stats, setStats] = useState<{ fps: number; st: Status; delegate: string; step?: string }>({ fps: 0, st: { hands: [], mode: '—' }, delegate: '' });
@@ -118,7 +118,7 @@ export default function HandControl(p: HandControlProps) {
     hudFace.onLock = () => { sfx.lockOn(); faceLockRef.current?.(); };
     const lib = new Library(shelfRef.current!, stageRef.current!, video, fx, sfx, {
       onRead: k => {
-        if (p.demo) { setToast('demo · Jarvis özeti seçili sesle okurdu'); setTimeout(() => setToast(null), 2200); return; }
+        if (p.demo) { setToast('عرض تجريبي · كان بكري سيقرأ الملخص بالصوت المحدد'); setTimeout(() => setToast(null), 2200); return; }
         propsRef.current.onBookRead?.(k);
       },
       onOpenChange: k => propsRef.current.onBookOpen?.(k),
@@ -212,7 +212,7 @@ export default function HandControl(p: HandControlProps) {
         getLibrary().then(k => { if (!alive) return; lib.setBooks(k.kitaplar, k.referans); setLibBooks(k.kitaplar); }).catch(() => {});
       } catch (e: any) {
         if (!alive) return; // eski başlatmanın hatası ekrana gelmesin
-        setErr(e?.name === 'NotAllowedError' ? 'Kamera izni verilmedi. Adres çubuğundaki kamera simgesinden izin verin.' : `Kamera açılamadı: ${e?.message || e}`);
+        setErr(e?.name === 'NotAllowedError' ? 'لم يتم منح إذن الكاميرا. اسمح باستخدامها من رمز الكاميرا بجانب شريط العنوان.' : `Kamera açılamadı: ${e?.message || e}`);
         return;
       }
       try {
@@ -266,7 +266,7 @@ export default function HandControl(p: HandControlProps) {
     }
     // Kamera hazır değilse biraz bekle (sesli komutla El Kontrolü yeni açıldıysa)
     for (let i = 0; i < 40 && (video.readyState < 2 || !video.videoWidth); i++) await new Promise(r => setTimeout(r, 250));
-    if (!video.videoWidth) { lib.scanFail('kamera hazır değil'); done({ bulunan: 0, belirsiz: 0, hata: 'kamera hazır değil' }); return; }
+    if (!video.videoWidth) { lib.scanFail('الكاميرا غير جاهزة'); done({ bulunan: 0, belirsiz: 0, hata: 'الكاميرا غير جاهزة' }); return; }
     try {
       const c = document.createElement('canvas');
       c.width = video.videoWidth; c.height = video.videoHeight;
@@ -300,7 +300,7 @@ export default function HandControl(p: HandControlProps) {
     lastPlanetCmd.current = c.n;
     const ad = GEZEGENLER.find(g => g.tur === c.tur)!.ad.toLocaleUpperCase('tr');
     const morphed = ctlRef.current.setPlanet(c.tur, performance.now());
-    if (!morphed) { setToast(`◉ ${ad} · çimdikle oluştur`); setTimeout(() => setToast(null), 2200); }
+    if (!morphed) { setToast(`◉ ${ad} · اقرص لإنشاء`); setTimeout(() => setToast(null), 2200); }
   }, [p.planetCmd]);
 
   // Sunucuda kitaplık değişti (not eklendi, Ayarlar'dan düzenlendi): haritayı yenile
@@ -311,14 +311,14 @@ export default function HandControl(p: HandControlProps) {
   useEffect(() => { if (libRef.current) libRef.current.paused = editing; }, [editing]);
   const saveBooks = async (list: Kitap[]) => {
     const lib = libRef.current;
-    if (shelfDemo) { lib?.setBooks(list, null); setLibBooks(list); setToast('demo · kaydedilmedi'); setTimeout(() => setToast(null), 1800); return; }
+    if (shelfDemo) { lib?.setBooks(list, null); setLibBooks(list); setToast('تجريبي · لم يتم الحفظ'); setTimeout(() => setToast(null), 1800); return; }
     try {
       const k = await saveLibrary({ kitaplar: list });
       lib?.setBooks(k.kitaplar, k.referans);
       setLibBooks(k.kitaplar);
-      setToast(`kitaplık kaydedildi · ${k.kitaplar.filter(b => b.ad).length} kitap`);
+      setToast(`تم حفظ المكتبة · ${k.kitaplar.filter(b => b.ad).length} كتاب`);
     } catch (e) {
-      setToast(`kaydedilemedi: ${(e as Error).message}`);
+      setToast(`تعذّر الحفظ: ${(e as Error).message}`);
     }
     setTimeout(() => setToast(null), 2200);
   };
@@ -360,19 +360,19 @@ export default function HandControl(p: HandControlProps) {
         <>
           <i className="el-corner tl" /><i className="el-corner tr" /><i className="el-corner bl" /><i className="el-corner br" />
           <div className="el-top">
-            <span className="el-title">JARVIS · EL KONTROLÜ</span>
+            <span className="el-title">بكري · التحكم بالإيماءات</span>
             <span className="el-chip">MOD: {st.mode.toLocaleUpperCase('tr')}</span>
             <span className="el-meta">{stats.fps} FPS · {st.hands.length} el{stats.delegate ? ` · ${stats.delegate}` : ''}{p.demo ? ' · DEMO' : ''}</span>
             {st.hands.map(h => <span key={h.id} className="el-meta">{GESTURE_LABEL[h.gesture]}</span>)}
             <span className="el-sp" />
-            {cams.length > 1 && <button className="el-btn" onClick={nextCam} title="Kamera değiştir (C)">⟳ kamera</button>}
-            <button className="el-btn" onClick={() => setAyar({ ses: !ayar.ses })} title="Efekt sesi (M)">{muted ? '🔇' : '🔊'}</button>
-            <button className={'el-btn' + (ayarOpen ? ' on' : '')} onClick={() => setAyarOpen(v => !v)} title="Efektleri aç/kapat (E)">⚙ efektler</button>
-            <button className="el-btn" onClick={p.onClose} title="Kapat (Esc)">✕</button>
+            {cams.length > 1 && <button className="el-btn" onClick={nextCam} title="تبديل الكاميرا (C)">⟳ الكاميرا</button>}
+            <button className="el-btn" onClick={() => setAyar({ ses: !ayar.ses })} title="صوت المؤثرات (M)">{muted ? '🔇' : '🔊'}</button>
+            <button className={'el-btn' + (ayarOpen ? ' on' : '')} onClick={() => setAyarOpen(v => !v)} title="تشغيل/إيقاف المؤثرات (E)">⚙ المؤثرات</button>
+            <button className="el-btn" onClick={p.onClose} title="إغلاق (Esc)">✕</button>
           </div>
           <div className="el-legend">
             {(st.mode.startsWith('kitap') ? LEGEND_KITAP : LEGEND).map(([g, t]) => <span key={g + t}><b>{g}</b> {t}</span>)}
-            <span className="el-keys">L arayüz · E efektler · F yüz kilidi · K kitaplık · D iskelet · M ses · Esc çık</span>
+            <span className="el-keys">L الواجهة · E المؤثرات · F تثبيت الوجه · K المكتبة · D الهيكل · M الصوت · Esc خروج</span>
           </div>
           {p.demo && stats.step && <div className="el-step">{stats.step}</div>}
         </>
@@ -381,13 +381,13 @@ export default function HandControl(p: HandControlProps) {
       {(p.caption || p.core === 'thinking') && (
         <div className={'el-caption ' + p.core}>
           <span className="el-dot" />
-          {p.caption || 'düşünüyor…'}
+          {p.caption || 'يفكّر…'}
         </div>
       )}
       {toast && <div className="el-toast">{toast}</div>}
       {ayarOpen && (
         <aside className="el-ayar" onPointerDown={e => e.stopPropagation()}>
-          <header><b>EFEKTLER</b><button className="el-btn" onClick={() => setAyarOpen(false)}>✕</button></header>
+          <header><b>المؤثرات</b><button className="el-btn" onClick={() => setAyarOpen(false)}>✕</button></header>
           {AYAR_LISTESI.map(({ k, ad, alt }) => (
             <label key={k} className={ayar[k] ? 'on' : ''}>
               <input type="checkbox" checked={ayar[k]} onChange={e => setAyar({ [k]: e.target.checked })} />
@@ -396,16 +396,16 @@ export default function HandControl(p: HandControlProps) {
             </label>
           ))}
           <div className="el-ayar-row">
-            <span>🪐 Gezegen</span>
+            <span>🪐 الكوكب</span>
             <select value={ayar.gezegenTur} onChange={e => setAyar({ gezegenTur: e.target.value as ElAyar['gezegenTur'] })}>
-              <option value="sirayla">Sırayla (her çimdikte sonraki)</option>
+              <option value="sirayla">بالتتابع (الكوكب التالي عند كل قرصة)</option>
               {GEZEGENLER.map(g => <option key={g.tur} value={g.tur}>{g.ad}</option>)}
             </select>
           </div>
-          <p>Bu cihazda saklanır. Kapalı efekt hiç tetiklenmez. Sesle: "Jarvis, Mars yap". Kısayol: <b>E</b></p>
+          <p>يُحفظ على هذا الجهاز. المؤثر المتوقف لا يعمل. بالأوامر الصوتية: «بكري، اجعل الكوكب المريخ». الاختصار: <b>E</b></p>
         </aside>
       )}
-      {moved && !editing && <div className="el-warn">⚠ KAMERA KIPIRDAMIŞ · KİTAPLIĞI YENİDEN TARA (K)</div>}
+      {moved && !editing && <div className="el-warn">⚠ تحرّكت الكاميرا · أعد مسح المكتبة (K)</div>}
       {editing && (
         <LibraryEditor
           books={libBooks} W={dims.W} H={dims.H} vw={dims.vw} vh={dims.vh}
@@ -415,7 +415,7 @@ export default function HandControl(p: HandControlProps) {
       )}
       {(status || err) && (
         <div className="el-status">
-          {err ? <><b>El kontrolü başlatılamadı</b><span>{err}</span><button className="el-btn" onClick={p.onClose}>Kapat</button></> : <><span className="el-spin" />{status}</>}
+          {err ? <><b>تعذّر تشغيل التحكم بالإيماءات</b><span>{err}</span><button className="el-btn" onClick={p.onClose}>إغلاق</button></> : <><span className="el-spin" />{status}</>}
         </div>
       )}
     </div>

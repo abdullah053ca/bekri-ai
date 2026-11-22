@@ -4,7 +4,7 @@ import type { JarvisReply } from '../../lib/types';
 import type { AgendaItem } from './agenda';
 import { DashPanel } from './common';
 
-/** Konuşurken sağ sütundaki "Bugünün akışı". Aktif madde parlar, solundaki çubuk anlatıldıkça dolar. */
+/** جدول اليوم: يضيء العنصر الحالي ويتقدم شريطه أثناء القراءة. */
 export function AgendaPanel({ reply, items, sceneIdx }: { reply: JarvisReply; items: AgendaItem[]; sceneIdx: number }) {
   const barRef = useRef<HTMLElement | null>(null);
   const active = useMemo(() => items.findIndex(it => sceneIdx >= it.start && sceneIdx < it.end), [items, sceneIdx]);
@@ -28,7 +28,7 @@ export function AgendaPanel({ reply, items, sceneIdx }: { reply: JarvisReply; it
   }, [active, items, reply, sceneIdx]);
 
   return (
-    <DashPanel index={0} label="Bugünün akışı" className="agenda">
+    <DashPanel index={0} label="جدول اليوم" className="agenda">
       <ol className="ag-list">
         {items.map((it, k) => {
           const state = k === active ? 'active' : sceneIdx >= it.end ? 'past' : 'next';

@@ -33,7 +33,7 @@ export const DEFAULT_WAKE: WakeConfig = {
   sens: 7,
   rhythm: null,
   rhythmOn: false,
-  greetings: { sabah: 'Günaydın efendim.', gun: 'İyi günler efendim.', aksam: 'İyi akşamlar efendim.' },
+  greetings: { sabah: 'صباح الخير، أنا بكري. كيف فيني ساعدك اليوم؟', gun: 'أهلاً، أنا بكري. كيف فيني ساعدك اليوم؟', aksam: 'مسا الخير، أنا بكري. كيف فيني ساعدك اليوم؟' },
   briefOnWake: false,
   idleMinutes: 5,
 };

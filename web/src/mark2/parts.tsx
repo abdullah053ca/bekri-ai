@@ -66,8 +66,8 @@ export function Row({ k, v, frac, tone = 'ok' }: { k: string; v: ReactNode; frac
 
 // ---------------------------------------------------------------- Gün cetveli
 
-const MONTHS = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
-const DAYS = ['PAZAR', 'PAZARTESİ', 'SALI', 'ÇARŞAMBA', 'PERŞEMBE', 'CUMA', 'CUMARTESİ'];
+const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const DAYS = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 
 /** Ayın günleri; bugün kutulu, geçen günler sönük. Dar ekranda bugünün ±6 günü. */
 export const DayRuler = memo(function DayRuler({ day, month, year }: { day: number; month: number; year: number }) {
@@ -143,7 +143,7 @@ const minutes = (hhmm: string | null) => (hhmm ? Number(hhmm.slice(0, 2)) * 60 +
  */
 export function WeatherDial({ w, highlight }: { w: Weather | null; highlight: boolean }) {
   const now = useNow(30_000);
-  if (!w) return <div className="m2-wx empty">hava verisi alınamadı</div>;
+  if (!w) return <div className="m2-wx empty">تعذّر تحميل بيانات الطقس</div>;
   const rise = minutes(w.sunrise), set = minutes(w.sunset);
   const nowDeg = ((now.getHours() * 60 + now.getMinutes()) / 1440) * 360;
   const span = w.today.max - w.today.min || 1;
@@ -169,7 +169,7 @@ export function WeatherDial({ w, highlight }: { w: Weather | null; highlight: bo
       </svg>
       <div className="m2-wx-side">
         <WeatherIcon icon={w.icon} size={40} />
-        <div className="m2-wx-city">{w.city.toLocaleUpperCase('tr')}</div>
+        <div className="m2-wx-city">{w.city.toLocaleUpperCase('ar-SY')}</div>
         <div className="m2-wx-desc">{w.description}</div>
         <div className="m2-wx-kv">his {fmt(Math.round(w.feels_like))}° · rüzgâr {fmt(Math.round(w.wind))} km/s</div>
         {w.sunrise && w.sunset && <div className="m2-wx-kv">☀ {w.sunrise} – {w.sunset}</div>}

@@ -9,11 +9,11 @@
   --muted: #8aa4b5;
   --danger: #ff6b6b;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
-  --sans: 'Rubik', system-ui, sans-serif;
+  --sans: 'Noto Sans Arabic', 'Rubik', system-ui, sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body, #root { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow: hidden; }
+html, body, #root { direction: rtl; margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow: hidden; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
 .app {

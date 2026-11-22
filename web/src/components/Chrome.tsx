@@ -13,8 +13,8 @@ function Clock() {
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
   return (
     <div className="clock">
-      <div className="time">{now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
-      <div className="date">{now.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <div className="time">{now.toLocaleTimeString('ar-SY', { hour: '2-digit', minute: '2-digit' })}</div>
+      <div className="date">{now.toLocaleDateString('ar-SY', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
     </div>
   );
 }
@@ -23,9 +23,9 @@ export function TopBar({ me, online, model, connected, mock }: { me: Device; onl
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="brand-mark">JARVIS</span>
-        <span className={'link ' + (connected ? 'on' : 'off')}>{connected ? 'çevrimiçi' : 'bağlanıyor…'}</span>
-        {mock && <span className="demo">DEMO</span>}
+        <span className="brand-mark">BEKRI</span>
+        <span className={'link ' + (connected ? 'on' : 'off')}>{connected ? 'متصل' : 'جارٍ الاتصال…'}</span>
+        {mock && <span className="demo">تجريبي</span>}
       </div>
       <div className="devices">
         {(['masaustu', 'tablet', 'telefon'] as Device[]).map(d => (
@@ -39,7 +39,7 @@ export function TopBar({ me, online, model, connected, mock }: { me: Device; onl
         <AnimatePresence mode="wait">
           {model && (
             <motion.div key={model} className="model-badge" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}>
-              <span className="k">beyin</span> {model}
+              <span className="k">النموذج</span> {model}
             </motion.div>
           )}
         </AnimatePresence>
@@ -74,7 +74,7 @@ export function Handoff({ info }: { info: { kind: 'out' | 'in'; from: Device | n
             <motion.div className="hd-arrow" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.8, delay: 0.2 }} />
             <div className="hd"><DeviceIcon d={info.to} /><span>{DEVICE_LABEL[info.to]}</span></div>
           </div>
-          <div className="handoff-text">{info.kind === 'in' ? 'oturum devralındı' : `oturum ${DEVICE_LABEL[info.to].toLocaleLowerCase('tr')} cihazına aktarıldı`}</div>
+          <div className="handoff-text">{info.kind === 'in' ? 'تم استلام الجلسة' : `تم نقل الجلسة إلى جهاز ${info.to === 'telefon' ? 'الهاتف' : info.to === 'tablet' ? 'الجهاز اللوحي' : 'الكمبيوتر'}`}</div>
         </motion.div>
       )}
     </AnimatePresence>

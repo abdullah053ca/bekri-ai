@@ -14,7 +14,7 @@ export type Gesture =
   | 'diger';
 
 export const GESTURE_LABEL: Record<Gesture, string> = {
-  acik: 'açık el', yumruk: 'yumruk', cimdik: 'çimdik', isaret: 'işaret', zafer: 'zafer', basparmak: 'başparmak', diger: '—',
+  acik: 'كف مفتوح', yumruk: 'قبضة', cimdik: 'قرصة', isaret: 'إشارة', zafer: 'نصر', basparmak: 'إبهام للأعلى', diger: '—',
 };
 
 export interface HandShape {

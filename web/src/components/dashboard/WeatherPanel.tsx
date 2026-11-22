@@ -18,7 +18,7 @@ export const WeatherPanel = memo(function WeatherPanel({
   highlight: boolean;
 }) {
   return (
-    <DashPanel index={index} label="Hava" meta={data?.city} demo={demo} highlight={highlight} className="wx">
+    <DashPanel index={index} label="الطقس" meta={data?.city} demo={demo} highlight={highlight} className="wx">
       {loading ? (
         <NoData loading />
       ) : !data ? (
@@ -34,10 +34,10 @@ export const WeatherPanel = memo(function WeatherPanel({
           </div>
           <div className="wx-desc">{data.description}</div>
           <dl className="kv">
-            <div><dt>hissedilen</dt><dd>{Math.round(data.feels_like)}°</dd></div>
-            <div><dt>bugün</dt><dd>{Math.round(data.today.max)}° / {Math.round(data.today.min)}°</dd></div>
-            <div><dt>yağış</dt><dd>{data.today.rain_prob === null ? '—' : `%${data.today.rain_prob}`}</dd></div>
-            <div><dt>rüzgâr</dt><dd>{Math.round(data.wind)} km/sa</dd></div>
+            <div><dt>المحسوس</dt><dd>{Math.round(data.feels_like)}°</dd></div>
+            <div><dt>اليوم</dt><dd>{Math.round(data.today.max)}° / {Math.round(data.today.min)}°</dd></div>
+            <div><dt>احتمال المطر</dt><dd>{data.today.rain_prob === null ? '—' : `%${data.today.rain_prob}`}</dd></div>
+            <div><dt>الرياح</dt><dd>{Math.round(data.wind)} km/sa</dd></div>
           </dl>
           <div className="panel-source">open-meteo · {data.updated_at.slice(11, 16)}</div>
         </>

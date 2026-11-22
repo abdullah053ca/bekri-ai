@@ -16,7 +16,7 @@ function Fx({ item, code }: { item: MarketItem | undefined; code: string }) {
 
 /** Dikey ekranlarda (telefon/tablet) tek satırlık özet: hava · USD · EUR. */
 export const CompactStrip = memo(function CompactStrip({ data }: { data: Dashboard | null }) {
-  if (!data) return <div className="strip"><span className="st-item na">yükleniyor…</span></div>;
+  if (!data) return <div className="strip"><span className="st-item na">جارٍ التحميل…</span></div>;
   const w = data.weather;
   const items = data.markets?.items ?? [];
   return (
@@ -26,13 +26,13 @@ export const CompactStrip = memo(function CompactStrip({ data }: { data: Dashboa
           <WeatherIcon icon={w.icon} size={22} /> <b>{Math.round(w.temp)}°</b> <span className="st-city">{w.city}</span>
         </span>
       ) : (
-        <span className="st-item na">hava —</span>
+        <span className="st-item na">الطقس —</span>
       )}
       <span className="st-sep" />
       <Fx item={items.find(i => i.code === 'USD')} code="USD" />
       <span className="st-sep" />
       <Fx item={items.find(i => i.code === 'EUR')} code="EUR" />
-      {data.demo && <span className="demo-tag">demo</span>}
+      {data.demo && <span className="demo-tag">تجريبي</span>}
     </div>
   );
 });
