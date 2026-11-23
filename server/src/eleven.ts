@@ -14,7 +14,7 @@ const API = 'https://api.elevenlabs.io/v1';
 
 /** VoiceSel.model ElevenLabs modeli mi (ör. eleven_v4_turbo, eleven_multilingual_v2) */
 export const isEleven = (model: string) => model.startsWith('eleven_');
-export const elevenReady = () => !!ELEVEN_KEY;
+export const elevenReady = () => process.env.ENABLE_WEB_FEATURES === '1' && !!ELEVEN_KEY;
 
 const headers = () => ({ 'xi-api-key': ELEVEN_KEY, 'Content-Type': 'application/json' });
 
