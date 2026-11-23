@@ -41,7 +41,7 @@ export interface Sahne {
   gorsel: GorselWithPhoto;
 }
 
-export interface JarvisReply {
+export interface BekriReply {
   id: string;
   sahneler: Sahne[];
   detay: string;
@@ -60,5 +60,5 @@ export interface StoredMessage {
   text: string; // assistant için sahnelerin ses metni birleştirilmiş
   device: Device;
   at: string;
-  reply?: JarvisReply;
+  reply?: BekriReply;
 }
