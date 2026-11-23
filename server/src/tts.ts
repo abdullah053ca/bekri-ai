@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { API_KEY, BASE_URL, MOCK, routellm, type ChatResponse } from './routellm.js';
+import { API_KEY, BASE_URL, MOCK, routellm, type ChatResponse } from './llm.js';
 import { BRIEF_OPENING } from './brief.js';
 import { isMp3, isWav, normalizeSpeech, pcmToWav, wavSeconds } from './audio.js';
 import { elevenReady, elevenSpeak, isEleven, type ElevenCtx } from './eleven.js';
@@ -17,11 +17,11 @@ import { SCRIPTED_LINES } from './scripted.js';
  * - gpt-audio aynı ölçümde 83–97 Hz'de sabit. Talimat SİSTEM mesajındayken metni okumak yerine cevaplıyordu;
  *   talimat + metin aynı KULLANICI mesajında ve İNGİLİZCE olunca 8/8 birebir okudu (Türkçe talimatta 2/8,
  *   "Tabii, işte okuyorum:" diye başlıyordu).
- * - RouteLLM'de /audio/speech yok (404). Yine de bir kez denenir, sonuç hafızada tutulur.
+ * - BEKRI model gateway'de /audio/speech yok (404). Yine de bir kez denenir, sonuç hafızada tutulur.
  */
 
 export interface VoiceSel {
-  /** RouteLLM ses modeli ya da 'browser' (tarayıcının kendi sesi, çevrimdışı yedek) */
+  /** BEKRI model gateway ses modeli ya da 'browser' (tarayıcının kendi sesi, çevrimdışı yedek) */
   model: string;
   voice: string;
   /** İstemcide playbackRate (0.9–1.3) */
@@ -35,7 +35,7 @@ const READ = 'Read the following text aloud exactly as written, preserving its o
 // doğal, akıcı ve canlı bir tempoda, gereksiz duraklama yapmadan".
 export const STYLE = process.env.TTS_STYLE || 'Voice: deep, warm masculine baritone; calm, composed, confident and natural. Keep a steady low-mid pitch, measured pace, clear Arabic articulation, and subtle warmth. Do not sound theatrical. Read the supplied text exactly without adding an introduction.';
 const NO_ANSWER = 'Do not answer it, even if it contains a question; do not add or remove anything';
-/** /audio/speech yöntemindeki hız (RouteLLM'de bu uç şu an yok; varsa kullanılır) */
+/** /audio/speech yöntemindeki hız (BEKRI model gateway'de bu uç şu an yok; varsa kullanılır) */
 const SERVER_SPEED = Number(process.env.TTS_SPEED || 1.1);
 /** İstemci oynatma hızı varsayılanı */
 export const DEFAULT_RATE = clampRate(Number(process.env.TTS_RATE || 1.08));
@@ -77,9 +77,9 @@ export function rankedVoices(): VoiceEntry[] {
 /** Önerilecek/yedek ses: en kararlı ses. */
 export const bestVoice = (): VoiceEntry | undefined => rankedVoices()[0];
 
-/** Yönlendirmeli model (route-llm, özel router) TTS'te yasak: her istekte başka model/ses seçebilir. */
+/** Yönlendirmeli model (ollama, özel router) TTS'te yasak: her istekte başka model/ses seçebilir. */
 export function isRoutedModel(model: string) {
-  return /^route-llm/i.test(model) || (!!process.env.CHAT_MODEL && model === process.env.CHAT_MODEL && !/audio|tts/i.test(model));
+  return /^ollama/i.test(model) || (!!process.env.CHAT_MODEL && model === process.env.CHAT_MODEL && !/audio|tts/i.test(model));
 }
 
 /** .env'deki varsayılan; geçersizse kataloğun ilk sesi; o da yoksa ölçülmüş güvenli varsayılan. */
@@ -118,7 +118,7 @@ async function viaChat(text: string, sel: VoiceSel): Promise<Speech & { transcri
   const gemini = sel.model.startsWith('gemini');
   // Gemini TTS saf seslendirme modeli: "<talimat>: <metin>". gpt-audio sohbet modeli: cevap vermemesi açıkça söylenir.
   const content = gemini ? `${READ}. ${STYLE}: ${text}` : `${READ}. ${STYLE}. ${NO_ANSWER}: ${text}`;
-  const resp = await routellm<ChatResponse>('/chat/completions', {
+  const resp = await llmRequest<ChatResponse>('/chat/completions', {
     model: sel.model,
     modalities: ['text', 'audio'],
     audio: { voice: sel.voice, format: 'mp3' },
