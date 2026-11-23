@@ -25,9 +25,9 @@ const YAP = /\b(yap|yapar|yapsana|yapiver|yapin|yapabilir|hazirla|hazirlar|hazir
 // "kahvemi bitirdim", "kahvem bitti", "kahvemi içtim"
 const BITTI = /\bkahve(m|mi|yi)?\b.*\b(bitti|bitirdim|ictim|biti)\b/;
 const FAL = /\bfal/;
-const FAL_DAVET = 'Efendim, kahveniz bittiyse falınıza bakabilirim.';
+const FAL_DAVET = 'سيدي، إن انتهيت من قهوتك، يمكنني قراءة الفنجان للتسلية.';
 /** Her falın son cümlesi: sunucu ekler, sesi önceden hazırdır (Halil'in isteği) */
-export const FAL_SON = 'Falınızda 100 bin takipçi görüyorum efendim.';
+export const FAL_SON = 'أرى في فنجانك مئة ألف متابع، سيدي.';
 
 /**
  * Fal turu mu? Davetten sonra gelen fotoğraf, fotoğrafla "fal", ya da kamera bağlıyken "falıma bak".
@@ -52,18 +52,18 @@ export const SCRIPTED: ScriptedCommand[] = [
     }),
     sahneler: [
       {
-        ses: 'Tabii efendim, kahveniz hazırlanıyor. Yapılışını kameradan da izleyebilirsiniz.',
-        gorsel: { tip: 'ikon', ikon: 'coffee', baslik: 'Türk kahvesi', alt: 'Bol köpüklü · hazırlanıyor', foto_arama: 'turkish coffee foam cup' },
+        ses: 'بكل سرور سيدي، قهوتك قيد التحضير. يمكنك متابعة ذلك عبر الكاميرا.',
+        gorsel: { tip: 'ikon', ikon: 'coffee', baslik: 'القهوة التركية', alt: 'رغوة وفيرة · قيد التحضير', foto_arama: 'turkish coffee foam cup' },
       },
     ],
-    detay: '**Türk kahvesi** — hazırlanıyor. Yapılışı kamera panelinden izlenebilir.',
+    detay: '**القهوة التركية** — قيد التحضير. يمكنك متابعة العملية من لوحة الكاميرا.',
   },
   {
     // Kahve bitti → fal daveti. "Falıma bak" da buraya düşer, ama yalnızca bağlı kamera yokken (kamera varsa Jarvis kameradan bakar)
     name: 'fal daveti',
     match: (t, c) => !c.image && (BITTI.test(t) || (FAL.test(t) && !c.cameraOnline)),
-    sahneler: [{ ses: FAL_DAVET, gorsel: { tip: 'ikon', ikon: 'coffee', baslik: 'Kahve falı', alt: 'Fincanınızın fotoğrafını gönderin', foto_arama: 'turkish coffee cup grounds' } }],
-    detay: 'Fincanı ters çevirip soğuduktan sonra **Fotoğraf** düğmesiyle telvenin fotoğrafını gönderin.',
+    sahneler: [{ ses: FAL_DAVET, gorsel: { tip: 'ikon', ikon: 'coffee', baslik: 'قراءة الفنجان', alt: 'أرسل صورة للفنجان', foto_arama: 'turkish coffee cup grounds' } }],
+    detay: 'اقلب الفنجان واتركه يبرد، ثم أرسل صورة للرواسب باستخدام زر **الصورة**.',
   },
 ];
 
@@ -74,15 +74,15 @@ export const findScripted = (text: string, ctx: ScriptedCtx) => {
 
 /** Önceden seslendirilecek cümleler */
 /** El Kontrolü yüz kilidi: kullanıcının yüzüne kilitlenince söylenir (istemcideki metinle birebir aynı olmalı) */
-export const YUZ_KILIDI = 'Yüz tanındı. Hoş geldiniz efendim, tam yetki verildi.';
+export const YUZ_KILIDI = 'تم رصد الوجه. أهلاً بك سيدي.';
 
 /** El Kontrolü kitaplık taraması başlarken (istemcideki metinle birebir aynı olmalı) */
-export const KITAPLIK_TARA = 'Kitaplığınızı tarıyorum efendim.';
+export const KITAPLIK_TARA = 'أفحص مكتبتك الآن سيدي.';
 
 /** El Kontrolü'nde açık kitaba sesle not/alıntı eklenince (istemcideki metinlerle birebir aynı olmalı) */
-export const NOT_ALDIM = 'Not aldım efendim.';
-export const ALINTI_ALDIM = 'Alıntıyı ekledim efendim.';
+export const NOT_ALDIM = 'تم حفظ الملاحظة سيدي.';
+export const ALINTI_ALDIM = 'أضفت الاقتباس سيدي.';
 /** Açık kitap adlandırılınca ("Jarvis, bu kitabın adı …") */
-export const KITAP_EKLIYORUM = 'Tamamdır efendim, ekliyorum.';
+export const KITAP_EKLIYORUM = 'حسناً سيدي، أضيف الكتاب الآن.';
 
 export const SCRIPTED_LINES = [...SCRIPTED.flatMap(s => s.sahneler.map(x => x.ses)), FAL_SON, YUZ_KILIDI, KITAPLIK_TARA, NOT_ALDIM, ALINTI_ALDIM, KITAP_EKLIYORUM];

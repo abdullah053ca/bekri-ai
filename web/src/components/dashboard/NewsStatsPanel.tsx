@@ -17,7 +17,7 @@ export const NewsStatsPanel = memo(function NewsStatsPanel({
   const cats = data?.by_category.slice(0, 6) ?? [];
   const max = Math.max(1, ...cats.map(c => c.count));
   return (
-    <DashPanel index={index} label="Gündem" demo={demo} className="ns">
+    <DashPanel index={index} label="الأخبار" demo={demo} className="ns">
       {loading ? (
         <NoData loading />
       ) : !data || data.total === 0 ? (

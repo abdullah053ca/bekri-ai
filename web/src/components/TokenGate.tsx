@@ -15,13 +15,13 @@ export function TokenGate({ wrong }: { wrong: boolean }) {
   return (
     <div className="tokengate">
       <div className="tg-box">
-        <div className="tg-title">JARVIS · ERİŞİM ANAHTARI</div>
-        <p>{wrong ? 'Bu cihazdaki anahtar geçersiz (değişmiş olabilir).' : 'Bu Jarvis bir erişim anahtarıyla korunuyor.'} Anahtarı yapıştırın; bu cihazda saklanır.</p>
+        <div className="tg-title">بكري · مفتاح الدخول</div>
+        <p>{wrong ? 'مفتاح الدخول على هذا الجهاز غير صالح، ربما تم تغييره.' : 'هذا المساعد محمي بمفتاح دخول.'} ألصق المفتاح هنا؛ وسيُحفظ على هذا الجهاز.</p>
         <form onSubmit={e => { e.preventDefault(); save(); }}>
-          <input value={v} onChange={e => setV(e.target.value)} placeholder="anahtar" autoFocus autoCapitalize="off" autoCorrect="off" spellCheck={false} type="password" />
-          <button type="submit" disabled={!v.trim()}>Giriş</button>
+          <input value={v} onChange={e => setV(e.target.value)} placeholder="مفتاح الدخول" autoFocus autoCapitalize="off" autoCorrect="off" spellCheck={false} type="password" />
+          <button type="submit" disabled={!v.trim()}>دخول</button>
         </form>
-        <p className="tg-note">Anahtar bilgisayardaki server/.env dosyasında ACCESS_TOKEN satırında.</p>
+        <p className="tg-note">تجد المفتاح في ملف server/.env ضمن السطر ACCESS_TOKEN.</p>
       </div>
     </div>
   );

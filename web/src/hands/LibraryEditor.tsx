@@ -1,5 +1,5 @@
 // Kitaplık ayar modu (El Kontrolü'nde K): taranan kutuları gör, belirsiz/kaçırılan kitabın sırtına fareyle dikdörtgen çiz,
-// adını yaz; var olan kutuyu taşı, köşesinden boyutlandır, sil. Kaydet → server/data/kitaplik.json
+// adını yaz; var olan kutuyu taşı, köşesinden boyutlandır, للحذف. حفظ → server/data/kitaplik.json
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Kitap, Kutu } from '../lib/library';
 import { makeMapper } from './tracker';
@@ -162,42 +162,42 @@ export default function LibraryEditor(p: Props) {
 
       <aside className="lbe-panel" onPointerDown={e => e.stopPropagation()}>
         <header>
-          <b>KİTAPLIK AYARI</b>
-          <span>{placed.length - belirsiz} tanındı · {belirsiz} belirsiz{yersiz ? ` · ${yersiz} kayıtlı kitabın rafta yeri yok` : ''}</span>
+          <b>إعداد المكتبة</b>
+          <span>{placed.length - belirsiz} تم التعرّف · {belirsiz} غير معروف{yersiz ? ` · ${yersiz} كتاب مسجّل بلا مكان على الرف` : ''}</span>
         </header>
-        {p.moved && <p className="lbe-warn">⚠ Kamera kıpırdamış: kutular kaymış olabilir, yeniden tarayın.</p>}
+        {p.moved && <p className="lbe-warn">⚠ تحرّكت الكاميرا: ربما تغيّرت أماكن الإطارات، أعد المسح.</p>}
         <div className="lbe-row">
-          <button className="el-btn" disabled={p.scanning} onClick={p.onScan}>{p.scanning ? 'Taranıyor…' : placed.length ? '⟳ Yeniden tara' : '⟳ Kitaplığı tara'}</button>
-          <button className="el-btn on" disabled={!dirty || saving} onClick={save}>{saving ? 'Kaydediliyor…' : 'Kaydet'}</button>
-          <button className="el-btn" onClick={p.onClose}>Kapat (K)</button>
+          <button className="el-btn" disabled={p.scanning} onClick={p.onScan}>{p.scanning ? 'جارٍ المسح…' : placed.length ? '⟳ إعادة المسح' : '⟳ مسح المكتبة'}</button>
+          <button className="el-btn on" disabled={!dirty || saving} onClick={save}>{saving ? 'جارٍ الحفظ…' : 'حفظ'}</button>
+          <button className="el-btn" onClick={p.onClose}>إغلاق (K)</button>
         </div>
         {cur ? (
           <div className="lbe-form">
-            <label>Kitabın adı</label>
-            <input ref={nameRef} list="lbe-kayitli" value={cur.ad ?? ''} placeholder={unplaced.length ? 'yazın ya da kayıtlı kitaplardan seçin' : 'sırtta yazan ad'} onChange={e => setName(cur, e.target.value)} maxLength={160} />
+            <label>اسم الكتاب</label>
+            <input ref={nameRef} list="lbe-kayitli" value={cur.ad ?? ''} placeholder={unplaced.length ? 'اكتب الاسم أو اختر من الكتب المسجّلة' : 'الاسم المكتوب على كعب الكتاب'} onChange={e => setName(cur, e.target.value)} maxLength={160} />
             <datalist id="lbe-kayitli">{unplaced.map(b => <option key={b.id} value={b.ad!}>{b.yazar ?? ''}</option>)}</datalist>
-            <label>Yazar</label>
-            <input value={cur.yazar ?? ''} placeholder="isteğe bağlı" onChange={e => change(cur.id, { yazar: e.target.value || null })} maxLength={120} />
+            <label>الكاتب</label>
+            <input value={cur.yazar ?? ''} placeholder="اختياري" onChange={e => change(cur.id, { yazar: e.target.value || null })} maxLength={120} />
             <div className="lbe-row">
-              <button className="el-btn" onClick={() => remove(cur.id)}>Kutuyu sil (Del)</button>
-              <button className="el-btn" onClick={() => setSel(null)}>Bitti</button>
+              <button className="el-btn" onClick={() => remove(cur.id)}>حذف الإطار (Del)</button>
+              <button className="el-btn" onClick={() => setSel(null)}>تم</button>
             </div>
           </div>
         ) : (
           <p className="lbe-hint">
-            Boş bir yere sürükleyin: yeni kutu. Kutuyu sürükleyin: taşı. Köşeden: boyutlandır. Seçip <b>Del</b>: sil.
-            Amber kesikli kutular belirsiz: tıklayıp adını yazın.
+            اسحب إلى مساحة فارغة لإنشاء إطار جديد. اسحب الإطار لنقله، واسحب الزاوية لتغيير حجمه. حدّده ثم اضغط <b>Del</b>: للحذف.
+            الإطارات ذات الحدود المتقطعة تشير إلى كتب غير معروفة؛ اضغط على الإطار واكتب اسم الكتاب.
           </p>
         )}
         {belirsiz > 0 && (
           <div className="lbe-list">
             {placed.filter(b => !b.ad).slice(0, 24).map((b, i) => (
-              <button key={b.id} className={b.id === sel ? 'on' : ''} onClick={() => { setSel(b.id); setTimeout(() => nameRef.current?.focus(), 30); }}>? belirsiz {i + 1}</button>
+              <button key={b.id} className={b.id === sel ? 'on' : ''} onClick={() => { setSel(b.id); setTimeout(() => nameRef.current?.focus(), 30); }}>? غير معروف {i + 1}</button>
             ))}
-            {belirsiz > 24 && <span className="lbe-hint">+{belirsiz - 24} belirsiz daha (kutusuna tıklayın)</span>}
+            {belirsiz > 24 && <span className="lbe-hint">+{belirsiz - 24} غير معروف إضافية (اضغط على الإطار)</span>}
           </div>
         )}
-        {p.demo && <p className="lbe-hint">Demo: değişiklikler sunucuya kaydedilmez.</p>}
+        {p.demo && <p className="lbe-hint">عرض تجريبي: لن تُحفظ التغييرات على الخادم.</p>}
       </aside>
     </div>
   );

@@ -33,7 +33,7 @@ export function DashPanel({
       <i className="corner tl" /><i className="corner tr" /><i className="corner bl" /><i className="corner br" />
       <header className="dash-head">
         <span className="panel-label">{label}</span>
-        {demo && <span className="demo-tag">demo</span>}
+        {demo && <span className="demo-tag">تجريبي</span>}
         {meta && <span className="dash-meta">{meta}</span>}
       </header>
       {children}
@@ -43,5 +43,5 @@ export function DashPanel({
 
 /** Veri yokken ya da yüklenirken gösterilen tek satır. Asla tahmini değer koymaz. */
 export function NoData({ loading = false }: { loading?: boolean }) {
-  return <div className={'no-data' + (loading ? ' loading' : '')}>{loading ? 'yükleniyor…' : 'veri alınamadı'}</div>;
+  return <div className={'no-data' + (loading ? ' loading' : '')}>{loading ? 'جارٍ التحميل…' : 'تعذّر تحميل البيانات'}</div>;
 }

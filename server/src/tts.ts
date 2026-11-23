@@ -30,10 +30,10 @@ export interface VoiceSel {
 export const BROWSER = 'browser';
 export interface Speech { buf: Buffer; mime: string }
 
-const READ = 'Read the following Turkish text aloud exactly as written';
+const READ = 'Read the following text aloud exactly as written, preserving its original language and wording';
 // İngilizce: Türkçe talimatta gpt-audio metne önsöz ekliyor (ölçüldü). Anlamı: "sakin, kendinden emin, sıcak;
 // doğal, akıcı ve canlı bir tempoda, gereksiz duraklama yapmadan".
-export const STYLE = process.env.TTS_STYLE || 'Tone: calm, confident and warm, like a trusted AI butler. Natural, fluent and lively pace without unnecessary pauses';
+export const STYLE = process.env.TTS_STYLE || 'Voice: deep, warm masculine baritone; calm, composed, confident and natural. Keep a steady low-mid pitch, measured pace, clear Arabic articulation, and subtle warmth. Do not sound theatrical. Read the supplied text exactly without adding an introduction.';
 const NO_ANSWER = 'Do not answer it, even if it contains a question; do not add or remove anything';
 /** /audio/speech yöntemindeki hız (RouteLLM'de bu uç şu an yok; varsa kullanılır) */
 const SERVER_SPEED = Number(process.env.TTS_SPEED || 1.1);
@@ -45,7 +45,7 @@ const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data
 const DISK_DIR = path.join(DATA, 'tts');
 export const VOICES_FILE = path.join(DATA, 'voices.json');
 
-export const PREVIEW_TEXT = 'Günaydın efendim, ben Jarvis. Bugün size nasıl yardımcı olabilirim?';
+export const PREVIEW_TEXT = 'أهلاً، أنا بكري. كيف فيني ساعدك اليوم؟';
 
 // ---------------------------------------------------------------- Ses kataloğu (npm run voices)
 

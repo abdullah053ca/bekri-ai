@@ -44,7 +44,7 @@ function highlightsFor(text: string): Highlight[] {
   return out;
 }
 
-const SUGGESTIONS = ['Jarvis, aydınlat beni', 'Devam et'];
+const SUGGESTIONS = ['بكري، أعطني موجز الأخبار', 'تابع'];
 
 /** Akışla gelen cevap: sahneler geldikçe dolar, oynatıcı bir sonraki sahneyi bekler. */
 interface Live { id: string; scenes: Sahne[]; voice?: VoiceSel; ended: boolean; wake: (() => void) | null; base: JarvisReply }
@@ -53,7 +53,7 @@ const waitScene = (l: Live, i: number) => new Promise<void>(res => { if (l.scene
 /** Rozet: router → gerçekten çalışan alt model */
 const brainLabel = (r: JarvisReply) => (r.router && r.model && r.router !== r.model ? `${r.router} → ${r.model}` : r.model);
 const voiceGroup = (v: VoiceOption) => v.label.split(' · ').slice(1).join(' · ') || v.model;
-const voiceTone = (f0: number | null) => (f0 === null ? '' : f0 < 110 ? 'derin' : f0 < 160 ? 'orta' : 'ince');
+const voiceTone = (f0: number | null) => (f0 === null ? '' : f0 < 110 ? 'عميق' : f0 < 160 ? 'متوسط' : 'حادّ');
 
 // Mark 2 (yoğun HUD) ayrı parça olarak yüklenir: Mark 1 kullanan cihaz onu indirmez.
 const Mark2 = lazy(() => import('./mark2/Mark2'));
@@ -61,22 +61,22 @@ const Mark2 = lazy(() => import('./mark2/Mark2'));
 const HandControl = lazy(() => import('./hands/HandControl'));
 /** ?el=1 açılışta el kontrolünü açar, ?el=demo kamerasız sentetik ellerle gösterir */
 const EL_PARAM = ((q: string | null) => (q === 'demo' ? 'demo' : q === '1' || q === 'kamera' ? 'kamera' : null))(new URLSearchParams(location.search).get('el'));
-/** "Jarvis, el kontrolünü aç / kapat" — sunucuya gitmeden arayüzde karşılanır */
-const EL_OPEN = /\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(aç|başlat|etkinleştir)|^(el kontrolü|büyü modu)$/i;
-const EL_CLOSE = /\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(kapat|durdur)/i;
+/** "Bekri, فعّل التحكم بالإيماءات / أوقفه" — sunucuya gitmeden arayüzde karşılanır */
+const EL_OPEN = /(?:\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(aç|başlat|etkinleştir)|^(el kontrolü|büyü modu)$|(?:افتح|شغّل|فعّل).*(?:التحكم باليد|التحكم بالإيماءات|الإيماءات))/i;
+const EL_CLOSE = /(?:\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(kapat|durdur)|(?:أغلق|أوقف|عطّل).*(?:التحكم باليد|التحكم بالإيماءات|الإيماءات))/i;
 /** ?el=demo&kitaplik=1: kitaplık demosu (prosedürel raf) */
 const KITAPLIK_DEMO = new URLSearchParams(location.search).get('kitaplik') === '1';
-/** "Jarvis, kitaplığımı tara" / "kitaplığı tarar mısın" / "rafları tara" (El Kontrolü kamerasıyla) */
-const KITAPLIK_TARA = /(kitapl[ıi]k|kitapl[ıi][gğ][ıi](m[ıi])?|raflar[ıi](m[ıi])?)\s.*?\btar(a|ar|at)/i;
+/** "بكري، امسح مكتبتي" / "kitaplığı tarar mısın" / "rafları tara" (El Kontrolü kamerasıyla) */
+const KITAPLIK_TARA = /(?:(?:kitapl[ıi]k|kitapl[ıi][gğ][ıi](m[ıi])?|raflar[ıi](m[ıi])?)\s.*?\btar(a|ar|at)|(?:المكتبة|مكتبتي|الرفوف).*(?:امسح|افحص|صوّر|اقرأ)|(?:امسح|افحص|صوّر|اقرأ).*(?:المكتبة|مكتبتي|الرفوف))/i;
 /** Kitap açıkken: "Jarvis, bunu özetle", "kitabı özetle", "özetini oku" */
 /** Kitap açıkken: "Jarvis, not al: …", "buna not ekle …", "alıntı ekle: …" → o kitaba eklenir (modele gitmez) */
-const KITABA_NOT = /^\s*(jarvis[,\s]+)?(bunu\s+|buna\s+|bu kitaba\s+|kitaba\s+)?(not al|not ekle|notlara ekle|alıntı ekle|alıntı al|alıntılara ekle)\s*[:,.\-–]?\s*(.+)$/i;
+const KITABA_NOT = /^\s*(?:(?:jarvis|bekri|بكري)[,،\s]+)?(bunu\s+|buna\s+|bu kitaba\s+|kitaba\s+|(?:هذا\s+)?(?:الكتاب\s+)?)?(not al|not ekle|notlara ekle|alıntı ekle|alıntı al|alıntılara ekle|أضف ملاحظة|سجّل ملاحظة|أضف اقتباساً|سجّل اقتباساً)\s*[:,.،\-–]?\s*(.+)$/i;
 /** Kitap açıkken: "Jarvis, bu kitabın adı Davranış" → açık kitap adlandırılır, Jarvis sayfaları dolar */
-const KITABIN_ADI = /(^|\s)(bu\s+)?kitab[ıi]n\s+ad[ıi](?:\s*[:,]\s*|\s+)["“']?(?!(?:ne|nedir|neydi)\s*\??\s*$)([^?]+?)["”']?[.!]?\s*$/i;
+const KITABIN_ADI = /(^|\s)(?:(?:bekri|بكري)[,،\s]+)?((?:bu\s+)?kitab[ıi]n\s+ad[ıi]|(?:اسم\s+هذا\s+الكتاب)|(?:اسم\s+الكتاب))(?:\s*[:,،]\s*|\s+)["“']?(?!(?:ne|nedir|neydi)\s*\??\s*$)([^?]+?)["”']?[.!؟]?\s*$/i;
 /** El Kontrolü açıkken: "Jarvis, Mars yap", "Jüpiter'e çevir", "gezegeni Dünya yap", "Güneş olsun" */
-const GEZEGEN_KOMUT = /(?:^|\s)(dünya|mars|jüpiter|jupiter|satürn|saturn|ay|güneş)(?:['’]?(?:y?[aeıiuü]|[dt][ae]|n[ıiuü]n))?\s+(yap|çevir|olsun|getir|dönüştür|oluştur)/i;
-const GEZEGEN_ADI: Record<string, GezegenTur> = { dünya: 'dunya', mars: 'mars', jüpiter: 'jupiter', jupiter: 'jupiter', satürn: 'saturn', saturn: 'saturn', ay: 'ay', güneş: 'gunes' };
-const BUNU_OZETLE = /(^|\s)(bunu|kitab[ıi]|bu kitab[ıi])\s+(özetle|özetler misin|anlat|oku)(?=$|[\s,.!?])|(^|\s)özetini\s+(oku|söyle)/i;
+const GEZEGEN_KOMUT = /(?:(?:^|\s)(dünya|mars|jüpiter|jupiter|satürn|saturn|ay|güneş|الأرض|المريخ|المشتري|زحل|القمر|الشمس)(?:['’]?(?:y?[aeıiuü]|[dt][ae]|n[ıiuü]n))?\s+(?:yap|çevir|olsun|getir|dönüştür|oluştur|اجعل|حوّل|خلي|ليكون)|(?:^|\s)(?:اجعل|حوّل|خلي|ليكون)\s+(?:الكوكب\s+)?(?:إلى\s+)?(الأرض|المريخ|المشتري|زحل|القمر|الشمس)(?:$|\s))/i;
+const GEZEGEN_ADI: Record<string, GezegenTur> = { dünya: 'dunya', mars: 'mars', jüpiter: 'jupiter', jupiter: 'jupiter', satürn: 'saturn', saturn: 'saturn', ay: 'ay', güneş: 'gunes', 'الأرض': 'dunya', 'المريخ': 'mars', 'المشتري': 'jupiter', 'زحل': 'saturn', 'القمر': 'ay', 'الشمس': 'gunes' };
+const BUNU_OZETLE = /(^|\s)(bunu|kitab[ıi]|bu kitab[ıi])\s+(özetle|özetler misin|anlat|oku)(?=$|[\s,.!?])|(^|\s)özetini\s+(oku|söyle)|(?:لخّص|لخص|اعطني ملخص|أعطني ملخص|اقرأ الملخص).*(?:الكتاب|هذا|هالكتاب)?/i;
 /** ?ui=mark2 ya da ?ui=mark1: ortak ayarı değiştirmeden yalnızca bu sekmede dene */
 const UI_OVERRIDE = ((q: string | null) => (q === 'mark1' || q === 'mark2' ? q : null))(new URLSearchParams(location.search).get('ui'));
 
@@ -169,8 +169,8 @@ export default function App() {
   }, [cameraEnabled]);
   /** "Kamera" düğmesi: canlı kamera paneli; bağlı kamera yoksa nasıl bağlanacağını söyler */
   const openLiveCamera = () => {
-    if (!cameraEnabled) return flash('Kamera özelliği kapalı: sunucuda ACCESS_TOKEN tanımlı değil.');
-    if (!camCount) return flash("Henüz kamera cihazı bağlı değil efendim. Eski iPhone'da Jarvis'i açıp Ayarlar → Bu cihazın rolü → Kamera seçin.");
+    if (!cameraEnabled) return flash('ميزة الكاميرا متوقفة: لم يتم إعداد ACCESS_TOKEN على الخادم.');
+    if (!camCount) return flash('ما في كاميرا متصلة حالياً. افتح بكري على الهاتف القديم، ثم الإعدادات ← دور هذا الجهاز ← الكاميرا.');
     toggleCameraPanel();
   };
   const ui: UiMode = UI_OVERRIDE ?? uiShared;
@@ -243,7 +243,7 @@ export default function App() {
       l.scenes.slice(i, i + 3).forEach((s, k) => voice.preload(s.ses, l.voice, i + k + 1, n, false, ctx(i + k)));
       setSceneIdx(i);
       voice.blip();
-      // Eskiden her sahneye max(2,6 sn, 45 ms × karakter) zorla bekleniyordu. Artık süreyi ses belirler;
+      // Eskiden her sahneye max(2,6 sn, 45 ms × حرف) zorla bekleniyordu. Artık süreyi ses belirler;
       // yalnızca görselli sahnelerde animasyon tamamlansın diye en fazla 1,2 sn alt sınır var.
       const minMs = sc.gorsel.tip !== 'yok' ? 1200 : 0;
       await Promise.all([voice.speak(sc.ses, l.voice, i + 1, n, ctx(i)), new Promise(r => setTimeout(r, minMs))]);
@@ -344,7 +344,7 @@ export default function App() {
     voice.speak(text, e.voice).then(() => {
       voice.onPlay = prev;
       end();
-      if (e.brief && playToken.current === my) submit('Jarvis, aydınlat beni');
+      if (e.brief && playToken.current === my) submit('Bekri, أطلعني على الأخبار');
     });
   };
 
@@ -607,14 +607,14 @@ export default function App() {
       voice.unlock(); setInput(''); setInterim('');
       setHands(h => h ?? (KITAPLIK_DEMO ? 'demo' : 'kamera'));
       setScanSig(n => n + 1);
-      speakLine('Kitaplığınızı tarıyorum efendim.');
+      speakLine('عم امسح المكتبة هلأ، سيدي.');
       return;
     }
     // Gezegen dönüştür (yalnızca El Kontrolü açıkken; modele gitmez, anında)
     const gm = !image && handsRef.current ? GEZEGEN_KOMUT.exec(t) : null;
     if (gm) {
       setInput(''); setInterim(''); setCore('idle');
-      setPlanetCmd(c => ({ tur: GEZEGEN_ADI[gm[1].toLocaleLowerCase('tr')], n: (c?.n ?? 0) + 1 }));
+      setPlanetCmd(c => ({ tur: GEZEGEN_ADI[(gm[1] ?? gm[2]).toLocaleLowerCase('tr')], n: (c?.n ?? 0) + 1 }));
       return;
     }
     // Açık kitabı adlandır (adı okunamamış sırtlar için): ad yazılır, sunucu kapağı ve Jarvis sayfalarını doldurur
@@ -623,7 +623,7 @@ export default function App() {
       voice.unlock(); setInput(''); setInterim('');
       const ad = an[3].trim();
       patchBook(openBook.current.id, { ad })
-        .then(() => speakLine('Tamamdır efendim, ekliyorum.'))
+        .then(() => speakLine('تمام سيدي، عم أضيفها.'))
         .catch(e => flash(`Kitap adlandırılamadı: ${e.message}`));
       return;
     }
@@ -631,10 +631,10 @@ export default function App() {
     const nm = !image && openBook.current ? KITABA_NOT.exec(t) : null;
     if (nm && openBook.current) {
       voice.unlock(); setInput(''); setInterim('');
-      const alinti = /alıntı/i.test(nm[3]);
-      const metin = nm[4].trim().replace(/[.。]+$/, '');
+      const alinti = /alıntı|اقتباس/i.test(nm[3]);
+      const metin = nm[3].trim().replace(/[.。]+$/, '');
       addNote(openBook.current.id, metin, alinti ? 'alinti' : 'not')
-        .then(() => speakLine(alinti ? 'Alıntıyı ekledim efendim.' : 'Not aldım efendim.'))
+        .then(() => speakLine(alinti ? 'أضفت الاقتباس سيدي.' : 'سجّلت الملاحظة سيدي.'))
         .catch(e => flash(`Not eklenemedi: ${e.message}`));
       return;
     }
@@ -802,7 +802,7 @@ export default function App() {
     if (speedDraft === null || !voiceSel || speedDraft === voiceSel.speed) return;
     const t = setTimeout(() => {
       saveSettings({ voice: { ...voiceSel, speed: speedDraft } })
-        .then(() => flash(`Konuşma hızı ${speedDraft.toLocaleString('tr-TR')}× · tüm cihazlarda güncellendi`))
+        .then(() => flash(`Konuşma hızı ${speedDraft.toLocaleString('ar-SY')}× · tüm cihazlarda güncellendi`))
         .catch(e => flash(e.message));
     }, 450);
     return () => clearTimeout(t);
@@ -939,7 +939,7 @@ export default function App() {
   const scene = reply && sceneIdx >= 0 && sceneIdx < reply.sahneler.length ? reply.sahneler[sceneIdx] : null;
   const photo = scene?.gorsel.foto ?? null;
   const done = !!reply && sceneIdx >= reply.sahneler.length;
-  const caption = core === 'listening' ? interim || 'dinliyorum…' : scene?.ses ?? preCaption;
+  const caption = core === 'listening' ? interim || 'أستمع…' : scene?.ses ?? preCaption;
   const showCta = core === 'idle' && !caption;
 
   // Görselsiz yorum sahnesinde bir önceki görsel ekranda kalır; çekirdek her sahnede büyüyüp küçülmez.
@@ -1044,7 +1044,7 @@ export default function App() {
             <div className="core-wrap">
               {/* Uyurken çekirdek çizilmez (pil); uyanışta halkalar sırayla çizilerek gelir */}
               {(wstate === 'awake' || wstate === 'waking') && <Core state={core} level={coreLevel} introAt={introAt} />}
-              <div className="core-label">{wstate === 'waking' ? 'başlatılıyor' : core === 'idle' ? 'hazır' : core === 'listening' ? 'dinliyor' : core === 'thinking' ? 'düşünüyor' : 'konuşuyor'}</div>
+              <div className="core-label">{wstate === 'waking' ? 'جارٍ التشغيل' : core === 'idle' ? 'جاهز' : core === 'listening' ? 'يستمع' : core === 'thinking' ? 'يفكّر' : 'يتحدّث'}</div>
               <Telemetry lines={core === 'thinking' || core === 'speaking' ? telemetry : []} />
               {checks && <WakeChecks health={checks.health} failed={checks.failed} />}
             </div>
@@ -1057,7 +1057,7 @@ export default function App() {
                 )}
               </AnimatePresence>
             </div>
-            {photo && <div className="photo-credit">{photo.kind === 'temsili' ? 'temsili görsel · yapay zeka' : `foto · ${photo.credit}`}</div>}
+            {photo && <div className="photo-credit">{photo.kind === 'temsili' ? 'صورة توضيحية · ذكاء اصطناعي' : `صورة · ${photo.credit}`}</div>}
           </div>
 
           <div className="caption">
@@ -1075,9 +1075,9 @@ export default function App() {
             <AnimatePresence>
               {showCta && (
                 <motion.div key="cta" className="cta" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.15 } }} transition={{ duration: 0.35 }}>
-                  {!reply && <div className="cta-hint">{speechRecognitionSupported() ? 'Mikrofona dokun ya da yaz.' : 'Bir şey yaz.'}</div>}
+                  {!reply && <div className="cta-hint">{speechRecognitionSupported() ? 'اضغط على الميكروفون أو اكتب رسالتك.' : 'اكتب رسالتك.'}</div>}
                   <div className="chips">
-                    {done && reply?.detay && <button className="detail-cta" onClick={() => setDrawer('detay')}>detaylı özeti aç ↗</button>}
+                    {done && reply?.detay && <button className="detail-cta" onClick={() => setDrawer('detay')}>افتح الملخص التفصيلي ↗</button>}
                     {SUGGESTIONS.map(s => <button key={s} onClick={() => submit(s)}>{s}</button>)}
                   </div>
                 </motion.div>
@@ -1103,24 +1103,24 @@ export default function App() {
         <footer className="dock">
           <button className="icon-btn" onClick={() => setDrawer(drawer ? null : 'gecmis')} aria-label="Menü">☰</button>
           <form className="ask" onSubmit={e => { e.preventDefault(); submit(input); }}>
-            <input value={input} onChange={e => setInput(e.target.value)} placeholder="Jarvis'e sor…" enterKeyHint="send" />
+            <input value={input} onChange={e => setInput(e.target.value)} placeholder="اسأل بكري…" enterKeyHint="send" />
           </form>
-          <button className="icon-btn cam" onClick={() => setHomeOpen(o => !o)} aria-label="Akıllı ev" title="Akıllı ev">
+          <button className="icon-btn cam" onClick={() => setHomeOpen(o => !o)} aria-label="المنزل الذكي" title="المنزل الذكي">
             <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h14V10" /><path d="M10 20v-5h4v5" /></svg>
           </button>
-          <button className="icon-btn cam" onClick={toggleHands} aria-label="El kontrolü" title="El kontrolü (H)">
+          <button className="icon-btn cam" onClick={toggleHands} aria-label="التحكم بالإيماءات" title="التحكم بالإيماءات (H)">
             <svg viewBox="0 0 24 24"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0V13M8 11.5a1.5 1.5 0 0 0-3 0V14a7 7 0 0 0 7 7h1a6 6 0 0 0 6-6V9.5a1.5 1.5 0 0 0-3 0" /></svg>
           </button>
-          <button className="icon-btn cam live" onClick={openLiveCamera} aria-label="Canlı kamera" title="Canlı kamera">
+          <button className="icon-btn cam live" onClick={openLiveCamera} aria-label="كاميرا مباشرة" title="كاميرا مباشرة">
             <svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2" /><path d="M16 11l5-3v8l-5-3z" /></svg>
           </button>
-          <button className="icon-btn cam" onClick={() => { voice.unlock(); fileRef.current?.click(); }} aria-label="Fotoğraf" title="Fotoğraf gönder">
+          <button className="icon-btn cam" onClick={() => { voice.unlock(); fileRef.current?.click(); }} aria-label="صورة" title="إرسال صورة">
             <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
           </button>
-          <button className={'mic ' + (core === 'listening' ? 'live' : '')} onClick={toggleMic} aria-label="Konuş">
+          <button className={'mic ' + (core === 'listening' ? 'live' : '')} onClick={toggleMic} aria-label="تحدّث">
             <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
           </button>
-          {core === 'speaking' && <button className="icon-btn" onClick={stopPlayback} aria-label="Durdur">■</button>}
+          {core === 'speaking' && <button className="icon-btn" onClick={stopPlayback} aria-label="إيقاف">■</button>}
         </footer>
         </>
       )}
@@ -1130,59 +1130,59 @@ export default function App() {
           <motion.aside className="drawer" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 28, stiffness: 260 }}>
             <div className="drawer-tabs">
               {(['detay', 'gecmis', 'ayarlar'] as const).map(t => (
-                <button key={t} className={drawer === t ? 'on' : ''} onClick={() => setDrawer(t)}>{t === 'detay' ? 'Detay' : t === 'gecmis' ? 'Geçmiş' : 'Ayarlar'}</button>
+                <button key={t} className={drawer === t ? 'on' : ''} onClick={() => setDrawer(t)}>{t === 'detay' ? 'التفاصيل' : t === 'gecmis' ? 'السجل' : 'الإعدادات'}</button>
               ))}
               <button className="close" onClick={() => setDrawer(null)}>✕</button>
             </div>
             <div className="drawer-body">
-              {drawer === 'detay' && (reply?.detay ? <Markdown text={reply.detay} /> : <p className="muted">Henüz detay yok.</p>)}
+              {drawer === 'detay' && (reply?.detay ? <Markdown text={reply.detay} /> : <p className="muted">لا توجد تفاصيل بعد.</p>)}
               {drawer === 'gecmis' && (
                 <ul className="history">
-                  {messages.length === 0 && <p className="muted">Konuşma boş.</p>}
+                  {messages.length === 0 && <p className="muted">لا توجد محادثات بعد.</p>}
                   {messages.map((m, i) => (
                     <li key={i} className={m.role}>
-                      <span className="who">{m.role === 'user' ? `sen · ${DEVICE_LABEL[m.device]}` : 'jarvis'}</span>
+                      <span className="who">{m.role === 'user' ? `أنت · ${DEVICE_LABEL[m.device]}`  : 'بكري'}</span>
                       <span className="txt">{m.text}</span>
-                      {m.reply && <button className="replay" onClick={() => { voice.unlock(); setDrawer(null); play(m.reply!); }}>▶ burada oynat</button>}
+                      {m.reply && <button className="replay" onClick={() => { voice.unlock(); setDrawer(null); play(m.reply!); }}>▶ تشغيل هنا</button>}
                     </li>
                   ))}
                 </ul>
               )}
               {drawer === 'ayarlar' && (
                 <div className="settings">
-                  <label>Ekran (tüm cihazlarda)</label>
+                  <label>واجهة العرض (على جميع الأجهزة)</label>
                   <div className="seg">
-                    <button className={ui === 'mark1' ? 'on' : ''} onClick={() => saveSettings({ ui: 'mark1' }).catch(e => flash(e.message))}>Mark 1 · sade</button>
-                    <button className={ui === 'mark2' ? 'on' : ''} onClick={() => saveSettings({ ui: 'mark2' }).catch(e => flash(e.message))}>Mark 2 · yoğun HUD</button>
+                    <button className={ui === 'mark1' ? 'on' : ''} onClick={() => saveSettings({ ui: 'mark1' }).catch(e => flash(e.message))}>Mark 1 · بسيط</button>
+                    <button className={ui === 'mark2' ? 'on' : ''} onClick={() => saveSettings({ ui: 'mark2' }).catch(e => flash(e.message))}>Mark 2 · واجهة معلومات موسّعة</button>
                   </div>
-                  <p className="muted small">Mark 2 geniş ekran için tasarlandı; telefonda sade bir düzene geçer.</p>
+                  <p className="muted small">صُمّم Mark 2 للشاشات الواسعة، ويتحوّل إلى تخطيط أبسط على الهاتف.</p>
                   <ProfileSettings flash={flash} />
                   <LibrarySettings flash={flash} version={libKey} />
-                  <label>Bu cihazın rolü</label>
+                  <label>دور هذا الجهاز</label>
                   <div className="seg">
-                    <button className={getRole() === 'ekran' ? 'on' : ''} onClick={() => setRole('ekran')}>Ekran</button>
-                    <button className={getRole() === 'kamera' ? 'on' : ''} disabled={!cameraEnabled} onClick={() => setRole('kamera')}>Kamera (Jarvis'in gözü)</button>
+                    <button className={getRole() === 'ekran' ? 'on' : ''} onClick={() => setRole('ekran')}>الشاشة</button>
+                    <button className={getRole() === 'kamera' ? 'on' : ''} disabled={!cameraEnabled} onClick={() => setRole('kamera')}>الكاميرا (عين بكري)</button>
                   </div>
                   <p className="muted small">
                     {cameraEnabled
-                      ? 'Kamera rolünde bu cihaz Jarvis arayüzü yerine kamera ekranını açar; görüntüsü diğer ekranlarda canlı izlenir ve Jarvis istenince ona bakar.'
-                      : 'Kamera özelliği kapalı: sunucuda ACCESS_TOKEN tanımlı değil. Görüntü taşıyan bir özellik olduğu için erişim anahtarı olmadan açılmaz (README → Kamera cihazı).'}
+                      ? 'في وضع الكاميرا، يعرض هذا الجهاز بث الكاميرا بدلاً من واجهة بكري؛ ويمكن مشاهدة البث مباشرة على الأجهزة الأخرى، كما يستطيع بكري فحصه عند الطلب.'
+                      : 'ميزة الكاميرا متوقفة: لم يتم إعداد ACCESS_TOKEN على الخادم. لا يمكن تفعيل ميزة نقل الصور دون مفتاح وصول (راجع README ← جهاز الكاميرا).'}
                   </p>
-                  <label>Bu cihaz</label>
+                  <label>هذا الجهاز</label>
                   <div className="seg">
                     {(['masaustu', 'tablet', 'telefon'] as Device[]).map(d => (
                       <button key={d} className={device === d ? 'on' : ''} onClick={() => { saveDevice(d); setDevice(d); }}>{DEVICE_LABEL[d]}</button>
                     ))}
                   </div>
-                  <label>Fotoğraf modu</label>
+                  <label>وضع الصور</label>
                   <div className="seg">
-                    <button className={photoMode === 'haber' ? 'on' : ''} onClick={() => setPhotoMode('haber')}>Haber fotoğrafı</button>
-                    <button className={photoMode === 'video' ? 'on' : ''} onClick={() => setPhotoMode('video')}>Video (stok)</button>
+                    <button className={photoMode === 'haber' ? 'on' : ''} onClick={() => setPhotoMode('haber')}>صورة خبرية</button>
+                    <button className={photoMode === 'video' ? 'on' : ''} onClick={() => setPhotoMode('video')}>فيديو (لقطات مرخّصة)</button>
                   </div>
-                  <p className="muted small">Video modu, çekimde telifsiz stok fotoğraf kullanır.</p>
-                  <label>Seslendiren</label>
-                  {voices === null ? <p className="muted small">yükleniyor…</p> : voices.length === 0 ? (
-                    <p className="muted small">Doğrulanmış ses yok. Sunucuda <code>npm run voices</code> çalıştırın.</p>
+                  <p className="muted small">يستخدم وضع الفيديو لقطات مرخّصة خالية من حقوق الملكية.</p>
+                  <label>الصوت</label>
+                  {voices === null ? <p className="muted small">جارٍ التحميل…</p> : voices.length === 0 ? (
+                    <p className="muted small">لا توجد أصوات مؤكدة. شغّل على الخادم <code>npm run voices</code> çalıştırın.</p>
                   ) : (
                     [...new Set(voices.map(voiceGroup))].map(group => (
                       <div key={group} className="vgroup">
@@ -1194,9 +1194,9 @@ export default function App() {
                               <button className="vpick" onClick={() => voiceSel && chooseVoice({ model: v.model, voice: v.voice, speed: voiceSel.speed }, v.label)}>
                                 <span className="vmark">{on ? '●' : '○'}</span>
                                 <span className="vname">{v.label.split(' · ')[0]}</span>
-                                <span className="vmeta">{voiceTone(v.f0)}{v.wpm ? ` · ${v.wpm} kel/dk` : ''}</span>
+                                <span className="vmeta">{voiceTone(v.f0)}{v.wpm ? ` · ${v.wpm} كلمة/دقيقة` : ''}</span>
                               </button>
-                              <button className="vplay" onClick={() => previewVoice(v.id)}>▶ dinle</button>
+                              <button className="vplay" onClick={() => previewVoice(v.id)}>▶ استمع</button>
                             </div>
                           );
                         })}
@@ -1205,20 +1205,20 @@ export default function App() {
                   )}
                   {elevenUse && (
                     <p className="muted small">
-                      ElevenLabs kullanımı: {elevenUse.used.toLocaleString('tr-TR')} / {elevenUse.limit.toLocaleString('tr-TR')} karakter
-                      {elevenUse.resetAt ? ` · ${new Date(elevenUse.resetAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} yenilenir` : ''}
+                      استخدام ElevenLabs: {elevenUse.used.toLocaleString('ar-SY')} / {elevenUse.limit.toLocaleString('ar-SY')} karakter
+                      {elevenUse.resetAt ? ` · ${new Date(elevenUse.resetAt).toLocaleDateString('ar-SY', { day: 'numeric', month: 'long' })} يُعاد التعيين` : ''}
                       {elevenUse.tier ? ` · ${elevenUse.tier}` : ''}
                     </p>
                   )}
-                  <label>Konuşma hızı · {(speedDraft ?? voiceSel?.speed ?? 1.08).toLocaleString('tr-TR')}×</label>
+                  <label>سرعة الكلام · {(speedDraft ?? voiceSel?.speed ?? 1.08).toLocaleString('ar-SY')}×</label>
                   <input className="range" type="range" min={0.9} max={1.3} step={0.02} value={speedDraft ?? voiceSel?.speed ?? 1.08} onChange={e => setSpeedDraft(Number(e.target.value))} />
-                  <label>Jarvis efekti (sahne geçiş sesi)</label>
+                  <label>مؤثر بكري (صوت الانتقال بين المشاهد)</label>
                   <div className="seg">
-                    <button className={sfxOn ? 'on' : ''} onClick={() => saveSettings({ sfx: true })}>Açık</button>
-                    <button className={!sfxOn ? 'on' : ''} onClick={() => saveSettings({ sfx: false })}>Kapalı</button>
+                    <button className={sfxOn ? 'on' : ''} onClick={() => saveSettings({ sfx: true })}>مفعّل</button>
+                    <button className={!sfxOn ? 'on' : ''} onClick={() => saveSettings({ sfx: false })}>متوقف</button>
                   </div>
-                  <label>Tarayıcı sesi (çevrimdışı yedek)</label>
-                  {bVoices.length === 0 ? <p className="muted small">Bu cihazda Türkçe tarayıcı sesi yok.</p> : (
+                  <label>صوت المتصفح (بديل عند انقطاع الإنترنت)</label>
+                  {bVoices.length === 0 ? <p className="muted small">لا يوجد صوت عربي في المتصفح على هذا الجهاز.</p> : (
                     <div className="vgroup">
                       {bVoices.map(b => {
                         const on = voiceSel?.model === 'browser' && voice.browserVoiceName === b.name;
@@ -1227,14 +1227,14 @@ export default function App() {
                             <button className="vpick" onClick={() => { voice.browserVoiceName = b.name; if (voiceSel) chooseVoice({ model: 'browser', voice: b.name, speed: voiceSel.speed }, `${b.name} (tarayıcı)`); }}>
                               <span className="vmark">{on ? '●' : '○'}</span>
                               <span className="vname">{b.name}</span>
-                              <span className="vmeta">{b.localService ? 'cihazda' : 'çevrimiçi'}</span>
+                              <span className="vmeta">{b.localService ? 'على الجهاز' : 'متصل بالإنترنت'}</span>
                             </button>
                           </div>
                         );
                       })}
                     </div>
                   )}
-                  <p className="muted small">Tarayıcı sesleri her cihazda farklıdır; seçim tüm cihazları tarayıcı sesine geçirir, ses adı bu cihazda saklanır.</p>
+                  <p className="muted small">تختلف أصوات المتصفح من جهاز لآخر. اختيار هذا الخيار يحوّل جميع الأجهزة إلى صوت المتصفح، ويُحفظ اسم الصوت على هذا الجهاز.</p>
                   {wake && (
                     <WakeSettings
                       cfg={wake}
@@ -1243,12 +1243,12 @@ export default function App() {
                       onCalibrate={on => { voice.unlock(); setAudioReady(true); setCalibrating(on); }}
                       onSave={saveWake}
                       onSleep={() => { voice.unlock(); postSleep(); }}
-                      onTestWake={() => postWake('test (ayarlar)')}
+                      onTestWake={() => postWake('اختبار (الإعدادات)')}
                       onLiveSens={v => { const d = clapRef.current?.detector; if (d) d.sens = v; }}
                     />
                   )}
                   {micError && calibrating && <p className="muted small">{micError}</p>}
-                  <button className="danger" onClick={() => clearConversation()}>Konuşmayı temizle</button>
+                  <button className="danger" onClick={() => clearConversation()}>مسح سجل المحادثة</button>
                 </div>
               )}
             </div>
@@ -1279,14 +1279,14 @@ export default function App() {
           mode={wstate === 'waking' ? 'waking' : wstate === 'attention' ? 'attention' : 'sleep'}
           heard={heardLive}
           hint={micError}
-          onDoubleTap={() => postWake('çift dokunma')}
+          onDoubleTap={() => postWake('نقرتان')}
         />
       )}
 
       <AnimatePresence>
         {toast && <motion.div className="toast" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>{toast}</motion.div>}
         {error && <motion.div className="toast err">{error}</motion.div>}
-        {soundHint && <motion.div key="sound" className="toast sound-hint" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>Sesi açmak için ekrana dokunun</motion.div>}
+        {soundHint && <motion.div key="sound" className="toast sound-hint" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>اضغط على الشاشة لتفعيل الصوت</motion.div>}
       </AnimatePresence>
     </div>
   );

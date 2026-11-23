@@ -191,5 +191,5 @@ export function Core({ state, level, introAt = null }: { state: CoreState; level
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
   }, [level]);
 
-  return <canvas ref={ref} className="core-canvas" aria-label="Jarvis çekirdeği" />;
+  return <canvas ref={ref} className="core-canvas" aria-label="نواة بكري" />;
 }

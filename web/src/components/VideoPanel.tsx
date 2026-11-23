@@ -7,9 +7,9 @@ export interface VideoInfo { id: string; title: string; channel: string; externa
 const watchUrl = (id: string, shorts?: boolean) => (shorts ? `https://www.youtube.com/shorts/${id}` : `https://www.youtube.com/watch?v=${id}`);
 
 /**
- * Jarvis içinde YouTube: resmi gömme oynatıcı (youtube-nocookie). Video bitince kendiliğinden kapanır.
+ * داخل بكري YouTube: resmi gömme oynatıcı (youtube-nocookie). Video bitince kendiliğinden kapanır.
  * Sahibi başka sitelerde oynatmayı kapattıysa (S Sport) ya da oynatıcı engel bildirirse (LaLiga: hata 101/150)
- * "YouTube'da izle" kartı gösterilir; engel sunucuya bildirilir, o kanal bir daha Jarvis içinde denenmez.
+ * "مشاهدة على YouTube" kartı gösterilir; engel sunucuya bildirilir, o kanal bir daha Jarvis içinde denenmez.
  */
 export function VideoPanel({ video, onClose }: { video: VideoInfo; onClose(): void }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -45,7 +45,7 @@ export function VideoPanel({ video, onClose }: { video: VideoInfo; onClose(): vo
           <span className="vp-tag">▶ YOUTUBE</span>
           <span className="vp-title">{video.title}</span>
           <span className="vp-ch">{video.channel}</span>
-          <button className="vp-close" onClick={onClose} aria-label="Videoyu kapat">✕</button>
+          <button className="vp-close" onClick={onClose} aria-label="إغلاق الفيديو">✕</button>
         </header>
         <div className="vp-player">
           {external ? (
@@ -54,8 +54,8 @@ export function VideoPanel({ video, onClose }: { video: VideoInfo; onClose(): vo
               <span className="vp-ext-scan" />
               <span className="vp-ext-body">
                 <span className="vp-ext-play">▶</span>
-                <b>YouTube'da izle</b>
-                <em>{video.channel} bu videonun yalnızca YouTube'da izlenmesine izin veriyor</em>
+                <b>مشاهدة على YouTube</b>
+                <em>{video.channel} bu videonun yalnızca مشاهدة على YouTubenmesine izin veriyor</em>
               </span>
             </a>
           ) : (

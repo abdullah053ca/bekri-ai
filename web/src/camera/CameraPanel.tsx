@@ -96,7 +96,7 @@ export function CameraPanel() {
       signal(sel, 'bye');
       const r = await watchFrames(sel, true).catch(() => null);
       if (dead) return;
-      if (r && !r.ok) { setError((await r.json().catch(() => ({}))).error || 'izlenemiyor'); setMode(null); return; }
+      if (r && !r.ok) { setError((await r.json().catch(() => ({}))).error || 'تعذّرت المشاهدة'); setMode(null); return; }
       setMode('KARE');
       setFrameAt(Date.now());
     };
@@ -105,7 +105,7 @@ export function CameraPanel() {
       if (p.connectionState === 'failed') toFrames();
     };
     signal(sel, 'request').then(async r => {
-      if (!r.ok && !dead) { setError((await r.json().catch(() => ({}))).error || 'bağlanılamadı'); setMode(null); }
+      if (!r.ok && !dead) { setError((await r.json().catch(() => ({}))).error || 'تعذّر الاتصال'); setMode(null); }
     });
     const t = setTimeout(() => { if (!connected.current) toFrames(); }, P2P_TIMEOUT_MS);
     return () => {
@@ -144,7 +144,7 @@ export function CameraPanel() {
       <button className="campanel-chip" onClick={() => setView('win')}>
         <i className={online ? 'on' : ''} />
         {cam?.label}{cam?.location ? ` · ${cam.location}` : ''}
-        {cam?.motion && <b>HAREKET</b>}
+        {cam?.motion && <b>حركة</b>}
       </button>
     );
   }
@@ -154,25 +154,25 @@ export function CameraPanel() {
       <header className="cp-head">
         <span className={'cp-rec' + (online ? ' on' : '')} />
         <span className="cp-id">{cam?.label}{cam?.location ? ` · ${cam.location}` : ''}</span>
-        {cam?.motion && <span className="cp-motion">HAREKET</span>}
+        {cam?.motion && <span className="cp-motion">حركة</span>}
         <span className="cp-sp" />
         {cams.length > 1 && (
           <span className="cp-tabs">
             {cams.map(c => <button key={c.id} className={c.id === sel ? 'on' : ''} onClick={() => setSel(c.id)}>{c.label}</button>)}
           </span>
         )}
-        <span className="cp-clock">{now.toLocaleTimeString('tr-TR')}</span>
+        <span className="cp-clock">{now.toLocaleTimeString('ar-SY')}</span>
         {mode && <span className={'cp-mode ' + (mode === 'P2P' ? 'p2p' : mode === 'KARE' ? 'kare' : '')}>{mode}</span>}
         {mode === 'P2P' && latency !== null && <span className="cp-lat">{latency} ms</span>}
         {frameAge !== null && <span className="cp-lat">{frameAge} ms</span>}
-        <button className="cp-btn" onClick={toggleFull} aria-label="Tam ekran">{view === 'full' ? '⤡' : '⤢'}</button>
-        <button className="cp-btn" onClick={() => setView('min')} aria-label="Küçült">—</button>
+        <button className="cp-btn" onClick={toggleFull} aria-label="ملء الشاشة">{view === 'full' ? '⤡' : '⤢'}</button>
+        <button className="cp-btn" onClick={() => setView('min')} aria-label="تصغير">—</button>
       </header>
       <div className="cp-body" onClick={toggleFull}>
         {cam && paused ? (
-          <div className="cp-off">{cam.label} durduruldu · kamera cihazında yeniden başlatılabilir</div>
+          <div className="cp-off">{cam.label} متوقف · يمكن إعادة تشغيله من جهاز الكاميرا</div>
         ) : !cam || !online ? (
-          <div className="cp-off">{cam?.label ?? 'Kamera'} çevrimdışı{cam?.lastSeen ? ` · son görülme ${hhmm(cam.lastSeen)}` : ''}</div>
+          <div className="cp-off">{cam?.label ?? 'Kamera'} غير متصل{cam?.lastSeen ? ` · آخر ظهور ${hhmm(cam.lastSeen)}` : ''}</div>
         ) : error ? (
           <div className="cp-off">{error}</div>
         ) : (
@@ -183,10 +183,10 @@ export function CameraPanel() {
           </>
         )}
         {look?.phase === 'frozen' && look.at && cam && <img className="cp-frozen" src={frameUrl(cam.id, look.at)} alt="" />}
-        {look && <div className="cp-scan"><span>{look.phase === 'scan' ? 'JARVIS BAKIYOR' : 'ANALİZ EDİLEN KARE'}</span></div>}
+        {look && <div className="cp-scan"><span>{look.phase === 'scan' ? 'بكري يفحص' : 'الإطار قيد التحليل'}</span></div>}
         <i className="corner tl" /><i className="corner tr" /><i className="corner bl" /><i className="corner br" />
       </div>
-      <footer className="cp-foot">{cam ? `${cam.viewers} izleyici${cam.quality ? ` · ${cam.quality}` : ''}${cam.state ? ` · ${cam.state}` : ''}` : ''}</footer>
+      <footer className="cp-foot">{cam ? `${cam.viewers} مشاهد${cam.quality ? ` · ${cam.quality}` : ''}${cam.state ? ` · ${cam.state}` : ''}` : ''}</footer>
     </div>
   );
 }

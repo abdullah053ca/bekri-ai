@@ -41,7 +41,7 @@ export const MarketsPanel = memo(function MarketsPanel({
   highlight: readonly string[];
 }) {
   return (
-    <DashPanel index={index} label="Piyasalar" meta={data ? 'satış' : undefined} demo={demo} highlight={data?.items.some(it => highlight.includes(it.code)) ?? false} className="mk">
+    <DashPanel index={index} label="الأسواق" meta={data ? 'أسعار الصرف' : undefined} demo={demo} highlight={data?.items.some(it => highlight.includes(it.code)) ?? false} className="mk">
       {loading ? (
         <NoData loading />
       ) : !data ? (
@@ -62,7 +62,7 @@ export const MarketsPanel = memo(function MarketsPanel({
               );
             })}
           </div>
-          <div className="panel-source">{data.source === 'TCMB' ? 'tcmb' : 'demo'} · {trDate(data.date)} bülteni</div>
+          <div className="panel-source">{data.source === 'TCMB' ? 'tcmb' : 'تجريبي'} · {trDate(data.date)} نشرة</div>
         </>
       )}
     </DashPanel>

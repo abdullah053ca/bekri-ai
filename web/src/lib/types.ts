@@ -148,14 +148,14 @@ export interface Dashboard {
 }
 
 export const CATEGORY_LABEL: Record<string, string> = {
-  gundem: 'Gündem',
-  ekonomi: 'Ekonomi',
-  dunya: 'Dünya',
-  teknoloji: 'Teknoloji',
-  spor: 'Spor',
-  saglik: 'Sağlık',
-  bilim: 'Bilim',
-  'kultur-sanat': 'Kültür',
+  gundem: 'أخبار',
+  ekonomi: 'اقتصاد',
+  dunya: 'العالم',
+  teknoloji: 'تقنية',
+  spor: 'رياضة',
+  saglik: 'صحة',
+  bilim: 'علوم',
+  'kultur-sanat': 'ثقافة',
 };
 
-export const DEVICE_LABEL: Record<Device, string> = { masaustu: 'Masaüstü', tablet: 'Tablet', telefon: 'Telefon' };
+export const DEVICE_LABEL: Record<Device, string> = { masaustu: 'الكمبيوتر', tablet: 'الجهاز اللوحي', telefon: 'الهاتف' };

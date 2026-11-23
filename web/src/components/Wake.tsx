@@ -27,7 +27,7 @@ export function SleepLayer({ mode, hint, heard, onDoubleTap }: {
         <i className="ring r1" />
         <i className="ring r2" />
       </div>
-      {mode === 'attention' && <div className="sleep-heard">{heard || 'dinliyorum…'}</div>}
+      {mode === 'attention' && <div className="sleep-heard">{heard || 'أستمع…'}</div>}
       {hint && mode !== 'waking' && <div className="sleep-hint">{hint}</div>}
     </div>
   );
@@ -39,18 +39,18 @@ type Mark = '✓' | '⚠' | '✗' | '…';
 function rows(h: Health | null, failed: boolean): { k: string; v: string; m: Mark }[] {
   if (!h) {
     const m: Mark = failed ? '✗' : '…';
-    const v = failed ? 'sunucuya ulaşılamadı' : 'ölçülüyor';
-    return [{ k: 'RouteLLM', v, m }, { k: 'Haber kaynakları', v, m }, { k: 'Cihazlar', v, m }];
+    const v = failed ? 'تعذّر الاتصال بالخادم' : 'جارٍ الفحص';
+    return [{ k: 'RouteLLM', v, m }, { k: 'مصادر الأخبار', v, m }, { k: 'الأجهزة', v, m }];
   }
   const s = h.sources;
   return [
-    { k: 'RouteLLM', v: h.routellm.ok ? `${h.routellm.ms} ms` : 'yanıt yok', m: h.routellm.ok ? '✓' : '✗' },
+    { k: 'RouteLLM', v: h.routellm.ok ? `${h.routellm.ms} ms` : 'لا توجد استجابة', m: h.routellm.ok ? '✓' : '✗' },
     {
-      k: 'Haber kaynakları',
-      v: s.known ? `${s.ok}/${s.total}` : 'henüz taranmadı',
+      k: 'مصادر الأخبار',
+      v: s.known ? `${s.ok}/${s.total}` : 'لم يتم الفحص بعد',
       m: !s.known ? '⚠' : s.ok === s.total ? '✓' : s.ok > 0 ? '⚠' : '✗',
     },
-    { k: 'Cihazlar', v: `${h.devices.online.length}/${h.devices.total} bağlı`, m: h.devices.online.length > 0 ? '✓' : '✗' },
+    { k: 'الأجهزة', v: `${h.devices.online.length}/${h.devices.total} متصل`, m: h.devices.online.length > 0 ? '✓' : '✗' },
   ];
 }
 
@@ -75,9 +75,9 @@ export function WakeChecks({ health, failed }: { health: Health | null; failed: 
 export const calibBus: { sink: ClapEvents | null } = { sink: null };
 
 const MODES: { id: WakeMode; label: string }[] = [
-  { id: 'clap+voice', label: 'Alkış + “uyan Jarvis”' },
-  { id: 'clap', label: 'Yalnızca alkış' },
-  { id: 'voice', label: 'Yalnızca “uyan Jarvis”' },
+  { id: 'clap+voice', label: 'تصفيق + «بكري، استيقظ»' },
+  { id: 'clap', label: 'التصفيق فقط' },
+  { id: 'voice', label: '«بكري، استيقظ» فقط' },
 ];
 const PERIODS: { id: GreetingPeriod; label: string }[] = [
   { id: 'sabah', label: '05–12' },
@@ -103,26 +103,26 @@ export function WakeSettings({ cfg, device, calibrating, onCalibrate, onSave, on
   const isListener = device === cfg.listener;
   return (
     <>
-      <label>Uyanış</label>
+      <label>التنبيه والاستيقاظ</label>
       <div className="seg">
-        <button className={cfg.enabled ? 'on' : ''} onClick={() => onSave({ enabled: true })}>Alkışla uyandır: açık</button>
-        <button className={!cfg.enabled ? 'on' : ''} onClick={() => onSave({ enabled: false })}>Kapalı</button>
+        <button className={cfg.enabled ? 'on' : ''} onClick={() => onSave({ enabled: true })}>التنبيه بالتصفيق: مفعّل</button>
+        <button className={!cfg.enabled ? 'on' : ''} onClick={() => onSave({ enabled: false })}>متوقف</button>
       </div>
       <div className="seg">
         {MODES.map(m => <button key={m.id} className={cfg.mode === m.id ? 'on' : ''} onClick={() => onSave({ mode: m.id })}>{m.label}</button>)}
       </div>
       <p className="muted small">
-        Alkış + ses: çift alkıştan sonra 4 sn içinde “uyan Jarvis” denmezse uykuya döner. Tek alkış, konuşma, müzik, kapı ve Jarvis’in kendi sesi tetiklemez.
+        التصفيق مع الصوت: إذا لم تقل «بكري، استيقظ» خلال 4 ثوانٍ بعد التصفيق مرتين، يعود إلى وضع السكون. التصفيقة الواحدة والكلام والموسيقى وصوت بكري نفسه لا تفعّل الاستيقاظ.
       </p>
-      <label>Dinleyici cihaz (mikrofon yalnızca bunda açılır)</label>
+      <label>جهاز الاستماع (يُفعّل الميكروفون على هذا الجهاز فقط)</label>
       <div className="seg">
         {DEVICES.map(d => <button key={d} className={cfg.listener === d ? 'on' : ''} onClick={() => onSave({ listener: d })}>{DEVICE_LABEL[d]}</button>)}
       </div>
-      <label>Karşılayan cihaz (sesi yalnızca bu çalar)</label>
+      <label>جهاز الترحيب (يصدر الصوت من هذا الجهاز فقط)</label>
       <div className="seg">
         {DEVICES.map(d => <button key={d} className={cfg.greeter === d ? 'on' : ''} onClick={() => onSave({ greeter: d })}>{DEVICE_LABEL[d]}</button>)}
       </div>
-      <label>Karşılama</label>
+      <label>رسالة الترحيب</label>
       {PERIODS.map(p => (
         <div key={p.id} className="greet-row">
           <span className="muted small">{p.label}</span>
@@ -135,24 +135,24 @@ export function WakeSettings({ cfg, device, calibrating, onCalibrate, onSave, on
           />
         </div>
       ))}
-      <label>Uyanınca brifingi başlat</label>
+      <label>ابدأ الملخص عند الاستيقاظ</label>
       <div className="seg">
-        <button className={cfg.briefOnWake ? 'on' : ''} onClick={() => onSave({ briefOnWake: true })}>Açık</button>
-        <button className={!cfg.briefOnWake ? 'on' : ''} onClick={() => onSave({ briefOnWake: false })}>Kapalı</button>
+        <button className={cfg.briefOnWake ? 'on' : ''} onClick={() => onSave({ briefOnWake: true })}>مفعّل</button>
+        <button className={!cfg.briefOnWake ? 'on' : ''} onClick={() => onSave({ briefOnWake: false })}>متوقف</button>
       </div>
-      <label>Boşta kalınca uyku</label>
+      <label>الدخول في وضع السكون عند الخمول</label>
       <div className="seg">
-        {IDLE.map(m => <button key={m} className={cfg.idleMinutes === m ? 'on' : ''} onClick={() => onSave({ idleMinutes: m })}>{m === 0 ? 'Kapalı' : `${m} dk`}</button>)}
+        {IDLE.map(m => <button key={m} className={cfg.idleMinutes === m ? 'on' : ''} onClick={() => onSave({ idleMinutes: m })}>{m === 0 ? 'متوقف' : `${m} دقيقة`}</button>)}
       </div>
       <div className="seg">
-        <button onClick={onSleep}>Uyku moduna al (S)</button>
-        <button onClick={onTestWake}>Test: uyandır (W)</button>
+        <button onClick={onSleep}>الدخول في وضع السكون (S)</button>
+        <button onClick={onTestWake}>اختبار: إيقاظ (W)</button>
       </div>
-      <label>Alkış kalibrasyonu</label>
+      <label>معايرة التصفيق</label>
       {!isListener ? (
-        <p className="muted small">Kalibrasyon yalnızca dinleyici cihazda ({DEVICE_LABEL[cfg.listener]}) yapılır.</p>
+        <p className="muted small">تتم المعايرة على جهاز الاستماع فقط ({DEVICE_LABEL[cfg.listener]}).</p>
       ) : !calibrating ? (
-        <button className="calib-open" onClick={() => onCalibrate(true)}>Kalibrasyonu aç (mikrofon)</button>
+        <button className="calib-open" onClick={() => onCalibrate(true)}>بدء المعايرة (الميكروفون)</button>
       ) : (
         <Calibration cfg={cfg} onSave={onSave} onLiveSens={onLiveSens} onClose={() => onCalibrate(false)} />
       )}
@@ -197,12 +197,12 @@ function Calibration({ cfg, onSave, onLiveSens, onClose }: { cfg: WakeConfig; on
     // 3 tekrar: alkış sayısı aynı olmalı, her aralık ortalamanın ±%20'si içinde
     const gaps = groups.map(g => g.slice(1).map((t, i) => t - g[i]));
     const n = gaps[0].length;
-    if (!gaps.every(g => g.length === n)) return setRhythmMsg('Tekrarlarda alkış sayısı farklı; yeniden deneyin.');
+    if (!gaps.every(g => g.length === n)) return setRhythmMsg('عدد التصفيقات مختلف بين المحاولات؛ حاول مجدداً.');
     const mean = gaps[0].map((_, i) => gaps.reduce((s, g) => s + g[i], 0) / gaps.length);
-    if (!gaps.every(g => g.every((x, i) => Math.abs(x - mean[i]) <= mean[i] * 0.2))) return setRhythmMsg('Tekrarlar birbirine yeterince benzemiyor (±%20); yeniden deneyin.');
-    if (mean.some(m => m < 120 || m > 1400) || n > 6) return setRhythmMsg('Aralıklar 0,12–1,4 sn arasında ve en fazla 7 alkış olmalı.');
+    if (!gaps.every(g => g.every((x, i) => Math.abs(x - mean[i]) <= mean[i] * 0.2))) return setRhythmMsg('المحاولات غير متشابهة بما يكفي (±20٪)؛ حاول مجدداً.');
+    if (mean.some(m => m < 120 || m > 1400) || n > 6) return setRhythmMsg('يجب أن تكون الفواصل بين 0.12 و1.4 ثانية، وبحد أقصى 7 تصفيقات.');
     onSave({ rhythm: mean.map(Math.round), rhythmOn: true });
-    setRhythmMsg(`Ritim kaydedildi: ${n + 1} alkış · ${mean.map(m => (m / 1000).toFixed(2)).join(' / ')} sn`);
+    setRhythmMsg(`تم حفظ الإيقاع: ${n + 1} تصفيق · ${mean.map(m => (m / 1000).toFixed(2)).join(' / ')} ثانية`);
   };
 
   useEffect(() => {
@@ -236,30 +236,30 @@ function Calibration({ cfg, onSave, onLiveSens, onClose }: { cfg: WakeConfig; on
     <div className="calib">
       <div className="calib-meter">
         <div className="cm-fill" ref={bar} />
-        <div className="cm-amb" ref={amb} title="ortam" />
-        <div className="cm-thr" ref={thr} title="eşik" />
+        <div className="cm-amb" ref={amb} title="الضجيج المحيط" />
+        <div className="cm-thr" ref={thr} title="الحد الفاصل" />
       </div>
-      <div className="calib-legend muted small"><span>−60 dB</span><span>ortam ┆ eşik ┃</span><span>0 dB</span></div>
-      <label>Eşik · ortamın {sens.toLocaleString('tr-TR')} katı {sens <= 5 ? '(hassas)' : sens >= 12 ? '(gürültülü oda)' : ''}</label>
+      <div className="calib-legend muted small"><span>−60 dB</span><span>الضجيج ┆ الحد ┃</span><span>0 dB</span></div>
+      <label>الحد · مضاعف الضجيج {sens.toLocaleString('tr-TR')} {sens <= 5 ? '(حساسية عالية)' : sens >= 12 ? '(غرفة صاخبة)' : ''}</label>
       <input className="range" type="range" min={3} max={20} step={0.5} value={sens} onChange={e => setSens(Number(e.target.value))} />
       <div className="calib-test">
         <span className={'clap-dot' + (dot ? ' on' : '')} />
-        <span>{pat ? (cfg.rhythmOn ? 'ritim tanındı ✓' : 'çift alkış ✓') : 'Bir kez alkışlayın: nokta yanmalı. Konuşun: yanmamalı.'}</span>
+        <span>{pat ? (cfg.rhythmOn ? 'تم التعرّف على الإيقاع ✓' : 'تصفيقتان ✓') : 'صفّق مرة واحدة: يجب أن تضيء النقطة. تكلّم: يجب ألا تضيء.'}</span>
       </div>
-      {reason && <p className="muted small">son ret: {reason}</p>}
-      <label>Gizli ritim (isteğe bağlı)</label>
+      {reason && <p className="muted small">آخر رفض: {reason}</p>}
+      <label>إيقاع مخصّص (اختياري)</label>
       {rec ? (
-        <p className="small">Ritminizi çalın, durun; 3 kez. Tekrar {Math.min(3, rec.groups.length + 1)}/3 · {rec.cur.length} alkış</p>
+        <p className="small">صفّق بالإيقاع المطلوب ثم توقّف؛ كرّر ذلك 3 مرات. المحاولة {Math.min(3, rec.groups.length + 1)}/3 · {rec.cur.length} تصفيق</p>
       ) : (
         <div className="seg">
-          <button onClick={() => { setRhythmMsg(''); setRec({ groups: [], cur: [] }); }}>Ritmini kaydet (3 kez)</button>
-          {cfg.rhythm && <button className={cfg.rhythmOn ? 'on' : ''} onClick={() => onSave({ rhythmOn: !cfg.rhythmOn })}>{cfg.rhythmOn ? 'Ritim açık' : 'Ritim kapalı'}</button>}
-          {cfg.rhythm && <button onClick={() => onSave({ rhythm: null, rhythmOn: false })}>Ritmi sil</button>}
+          <button onClick={() => { setRhythmMsg(''); setRec({ groups: [], cur: [] }); }}>حفظ الإيقاع (3 مرات)</button>
+          {cfg.rhythm && <button className={cfg.rhythmOn ? 'on' : ''} onClick={() => onSave({ rhythmOn: !cfg.rhythmOn })}>{cfg.rhythmOn ? 'الإيقاع مفعّل' : 'الإيقاع متوقف'}</button>}
+          {cfg.rhythm && <button onClick={() => onSave({ rhythm: null, rhythmOn: false })}>حذف الإيقاع</button>}
         </div>
       )}
       {rhythmMsg && <p className="muted small">{rhythmMsg}</p>}
-      <p className="muted small">Ritim açıkken çift alkış yerine öğrenilen ritim aranır (her aralık ±%20).</p>
-      <button className="calib-open" onClick={onClose}>Kalibrasyonu kapat</button>
+      <p className="muted small">عند تفعيل الإيقاع، يبحث النظام عن النمط المحفوظ بدلاً من تصفيقتين عاديتين (بهامش ±20٪ لكل فاصلة).</p>
+      <button className="calib-open" onClick={onClose}>إغلاق المعايرة</button>
     </div>
   );
 }

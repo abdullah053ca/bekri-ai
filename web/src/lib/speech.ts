@@ -5,7 +5,7 @@ function safeGet(k: string) { try { return localStorage.getItem(k); } catch { re
 function safeSet(k: string, v: string | null) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* yok say */ } }
 
 /**
- * Jarvis'in sesi.
+ * Bekri's Arabic voice.
  * - Sunucu TTS'i açıksa RouteLLM ses modeli çalınır, seviye Web Audio analizörüyle ölçülür.
  * - Ses cevaba sabitlenir (reply.voice). Bir sahnenin sunucu sesi alınamazsa bir kez yeniden denenir; yine olmazsa
  *   O CEVABIN KALANI tarayıcı sesine geçer. Önceden tek tek sahneler tarayıcı sesine düşebiliyor, sesler karışıyordu.
@@ -27,7 +27,7 @@ class VoiceEngine {
   /** Sunucu sesi açık mı (seçili ses 'browser' değilse) */
   serverTts = false;
   /** Konuşma hızı (playbackRate), 0.9–1.3 */
-  rate = 1.08;
+  rate = 0.98;
   /** Bu çalmada kullanılan hız: ElevenLabs sesleri hızı sunucuda alır, tarayıcıda esnetilmez (1,0) */
   private playRate = 1.08;
   /** "Jarvis efekti": sahne geçiş sesi */
@@ -49,11 +49,11 @@ class VoiceEngine {
   beginReply() { this.replyBrowser = !this.serverTts; }
 
   // ---- Tarayıcı sesi (çevrimdışı yedek): her cihazın kendi sesleri var, seçim cihazda saklanır ----
-  get browserVoiceName() { return safeGet('jarvis.browserVoice'); }
-  set browserVoiceName(v: string | null) { safeSet('jarvis.browserVoice', v); }
+  get browserVoiceName() { return safeGet('bekri.browserVoice'); }
+  set browserVoiceName(v: string | null) { safeSet('bekri.browserVoice', v); }
   browserVoices(): SpeechSynthesisVoice[] {
     if (!('speechSynthesis' in window)) return [];
-    return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('tr'));
+    return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('ar'));
   }
 
   /** Kullanıcı dokunuşuyla açılmış ses bağlamı (alkış dinleyicisi aynı bağlamı kullanır); henüz yoksa null. */
@@ -311,7 +311,7 @@ class VoiceEngine {
     if (!('speechSynthesis' in window)) return new Promise(r => setTimeout(r, Math.max(1500, text.length * 55)));
     return new Promise(resolve => {
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'tr-TR';
+      u.lang = 'ar-SY';
       const voices = this.browserVoices();
       const chosen = this.browserVoiceName ? voices.find(v => v.name === this.browserVoiceName) : undefined;
       const preferred = chosen || voices.find(v => /yelda|google|premium|enhanced/i.test(v.name)) || voices[0];
@@ -358,7 +358,7 @@ export function createRecognizer(h: { onInterim(t: string): void; onFinal(t: str
   const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   if (!SR) return null;
   const rec = new SR();
-  rec.lang = 'tr-TR';
+  rec.lang = 'ar-SY';
   rec.interimResults = true;
   rec.continuous = false;
   let finalText = '';

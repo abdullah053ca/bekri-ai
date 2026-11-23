@@ -25,12 +25,12 @@ function contextVars(device: Device, prevDevice: Device | null) {
   const now = new Date();
   const tz = 'Europe/Istanbul';
   return {
-    tarih: now.toLocaleDateString('tr-TR', { timeZone: tz, day: 'numeric', month: 'long', year: 'numeric' }),
-    gun: now.toLocaleDateString('tr-TR', { timeZone: tz, weekday: 'long' }),
-    saat: now.toLocaleTimeString('tr-TR', { timeZone: tz, hour: '2-digit', minute: '2-digit' }),
+    tarih: now.toLocaleDateString('ar-SY', { timeZone: tz, day: 'numeric', month: 'long', year: 'numeric' }),
+    gun: now.toLocaleDateString('ar-SY', { timeZone: tz, weekday: 'long' }),
+    saat: now.toLocaleTimeString('ar-SY', { timeZone: tz, hour: '2-digit', minute: '2-digit' }),
     cihaz: device,
     onceki_cihaz: prevDevice ?? device,
-    kullanici: process.env.USER_NAME || 'Halil',
+    kullanici: process.env.USER_NAME || 'صديقي',
     profil: getProfile().text,
     hafiza: memoryForPrompt(),
     kitaplik: libraryForPrompt(),

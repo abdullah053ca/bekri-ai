@@ -12,15 +12,16 @@ export function fold(s: string): string {
     .toLocaleLowerCase('tr')
     .replace(/[çğıöşüâîû]/g, c => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u', â: 'a', î: 'i', û: 'u' })[c] ?? c)
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/[̀-ͯ\u064B-\u065F\u0670]/g, '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/[^a-z0-9\u0600-\u06FF]+/g, ' ')
     .trim();
 }
 
 // Ses tanıma "Jarvis"i çoğu zaman Türkçe yazımla duyar: carvis, cervis, çarvis (→ carvis), jarviz…
-const NAME = /\b(jarvis|carvis|cervis|jervis|carviz|jarviz)\b/;
+const NAME = /\b(bekri|bakri|bekry)\b|بكري/;
 // "uyan", "uyan artık", "hadi uyan", "uyansana"
-const WAKE = /\buyan(sana|in)?\b/;
+const WAKE = /(?:^|\s)(?:uyan(?:sana|in)?|استيقظ|اصحى|فيق|قوم)(?:\s|$)/;
 
 /**
  * "Uyan Jarvis" mi? strict: hem "uyan" hem isim gerekir (yalnızca sesle uyanma: alkış yok, yanlış uyanma daha kolay).
