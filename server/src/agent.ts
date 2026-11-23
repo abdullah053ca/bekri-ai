@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { buildSystemPrompt } from './prompt.js';
-import { CHAT_MODEL, MOCK, LLMError, routellmStream, type ChatMessage, type ContentPart } from './routellm.js';
+import { CHAT_MODEL, MOCK, LLMError, llmStream, type ChatMessage, type ContentPart } from './llm.js';
 import { TOOLS, runTool, type ToolProgress } from './tools.js';
 import { findNewsById } from './news.js';
 import { resolveFastPhoto, resolveSlowPhoto, type PhotoMode } from './photos.js';
@@ -315,7 +315,7 @@ export async function runBekri(opts: RunOptions): Promise<JarvisReply> {
     return { ...r, router: 'demo' };
   }
 
-  // Sistem prompt'u: değişmeyen kısım başta, tarih/saat/cihaz sonda (RouteLLM prompt önbelleği her turda tutsun).
+  // Sistem prompt'u: değişmeyen kısım başta, tarih/saat/cihaz sonda (BEKRI model gateway prompt önbelleği her turda tutsun).
   const userContent: string | ContentPart[] = opts.image
     ? [{ type: 'text', text: `${text || 'Bu ne?'}${fal ? `\n\n${FAL_NOTE}` : ''}` }, { type: 'image_url', image_url: { url: opts.image } }]
     : fal
@@ -343,7 +343,7 @@ export async function runBekri(opts: RunOptions): Promise<JarvisReply> {
     const parser = new SceneStream();
     let res;
     try {
-      res = await routellmStream(body, (_d, full) => parser.push(full).forEach(enqueue));
+      res = await llmStream(body, (_d, full) => parser.push(full).forEach(enqueue));
     } catch (e) {
       if (forceNews && e instanceof LLMError && e.status === 400) {
         forceNews = false; // sağlayıcı zorunlu tool_choice'u desteklemiyorsa 'auto' ile tekrar dene
