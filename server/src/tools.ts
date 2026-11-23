@@ -1,5 +1,5 @@
 import { getNews, type GetNewsArgs } from './news.js';
-import { getMarkets, getWeather } from './dashboard.js';
+import { getMarkets, getWeather, WEB_FEATURES_ENABLED } from './dashboard.js';
 import { wikiLookup } from './wiki.js';
 import { addMemory, removeMemory } from './profile.js';
 import { checkVideo, findHighlights, latestFromChannel, searchVideos, videoIdFrom } from './youtube.js';
@@ -242,6 +242,7 @@ export async function runTool(name: string, rawArgs: string, progress: ToolProgr
     args = {};
   }
   if (name === 'get_news') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı. Kullanıcı ENABLE_WEB_FEATURES=1 ayarını kendisi açmadıkça web isteği yapma.' });
     progress('haber kaynakları taranıyor');
     const res = await getNews(args as GetNewsArgs);
     progress(`${res.sources_scanned} kaynak tarandı · ${res.items.length} haber bulundu`);
@@ -252,16 +253,19 @@ export async function runTool(name: string, rawArgs: string, progress: ToolProgr
     });
   }
   if (name === 'get_markets') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; canlı piyasa verisi alınmadı.' });
     progress('piyasa verileri alınıyor');
     const m = await getMarkets();
     return JSON.stringify(m ?? { error: 'Piyasa verisi şu an alınamıyor. Rakam söyleme.' });
   }
   if (name === 'get_weather') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; canlı hava durumu alınmadı.' });
     progress('hava durumu alınıyor');
     const w = await getWeather();
     return JSON.stringify(w ?? { error: 'Hava durumu şu an alınamıyor. Rakam söyleme.' });
   }
   if (name === 'wiki_lookup') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; Wikipedia isteği yapılmadı.' });
     const baslik = String(args.baslik ?? args.title ?? '');
     progress(`wikipedia: ${baslik}`);
     const w = await wikiLookup(baslik).catch(() => null);
@@ -271,6 +275,7 @@ export async function runTool(name: string, rawArgs: string, progress: ToolProgr
     return JSON.stringify({ ...rest, foto: foto ? { var: true, lisans: foto.lisans, yazar: foto.yazar } : null });
   }
   if (name === 'mac_ozeti_bul') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; YouTube isteği yapılmadı.' });
     const takim = String(args.takim ?? '');
     progress(`maç özeti aranıyor: ${takim}`);
     const brans = ['futbol', 'basketbol', 'voleybol'].includes(args.brans) ? args.brans : 'futbol';
@@ -282,6 +287,7 @@ export async function runTool(name: string, rawArgs: string, progress: ToolProgr
     });
   }
   if (name === 'youtube_ara') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; YouTube isteği yapılmadı.' });
     const sorgu = String(args.sorgu ?? '');
     progress(`youtube: ${sorgu}`);
     const r = await searchVideos(sorgu).catch(e => ({ hata: String(e.message) }));
@@ -291,6 +297,7 @@ export async function runTool(name: string, rawArgs: string, progress: ToolProgr
     return JSON.stringify(r.length ? { videolar: r } : { sonuc: 'Sonuç yok.' });
   }
   if (name === 'kanal_son_video') {
+    if (!WEB_FEATURES_ENABLED) return JSON.stringify({ error: 'İnternet özellikleri kapalı; YouTube isteği yapılmadı.' });
     const kanal = String(args.kanal ?? '');
     const tur = ['shorts', 'video', 'hepsi'].includes(args.tur) ? args.tur : undefined;
     progress(`kanal: ${kanal}${tur ? ` · ${tur}` : ''}`);
