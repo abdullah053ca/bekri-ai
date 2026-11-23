@@ -1,48 +1,59 @@
 import 'dotenv/config';
 
-export const BASE_URL = process.env.ROUTELLM_BASE_URL || 'https://routellm.abacus.ai/v1';
-export const API_KEY = process.env.ABACUS_API_KEY || '';
-export const CHAT_MODEL = process.env.CHAT_MODEL || 'route-llm';
-export const MOCK = process.env.MOCK === '1' || !API_KEY;
+/**
+ * BEKRI model gateway.
+ * Default provider is Ollama on loopback. No API key or cloud account is required.
+ * The gateway intentionally speaks the OpenAI-compatible chat-completions protocol
+ * so local Ollama models can use the same agent/tool pipeline.
+ */
+export const BASE_URL = (process.env.LLM_BASE_URL || process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434/v1').replace(/\/$/, '');
+export const API_KEY = process.env.LLM_API_KEY || '';
+export const CHAT_MODEL = process.env.OLLAMA_MODEL || process.env.CHAT_MODEL || 'qwen2.5:7b';
+export const MOCK = process.env.MOCK === '1';
 
-export class RouteLLMError extends Error {
+export class LLMError extends Error {
   constructor(public status: number, public body: string) {
-    super(`RouteLLM ${status}: ${body.slice(0, 300)}`);
+    super(`BEKRI model gateway ${status}: ${body.slice(0, 300)}`);
   }
+}
+// Transitional export for modules being migrated; this is not a RouteLLM dependency.
+export { LLMError as RouteLLMError };
+
+function headers(extra: Record<string, string> = {}) {
+  return {
+    ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
+    ...extra,
+  };
 }
 
 export async function routellm<T = any>(path: string, body?: unknown, method = body ? 'POST' : 'GET'): Promise<T> {
   const res = await fetch(BASE_URL + path, {
     method,
-    headers: { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+    headers: headers({ 'Content-Type': 'application/json' }),
     body: body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
-  if (!res.ok) throw new RouteLLMError(res.status, text);
-  return JSON.parse(text) as T;
+  if (!res.ok) throw new LLMError(res.status, text);
+  return text ? JSON.parse(text) as T : ({} as T);
 }
 
 export interface StreamResult {
   content: string;
   tool_calls: NonNullable<ChatMessage['tool_calls']>;
   model: string | null;
-  /** İsteğin gönderilmesinden ilk içerik/araç parçasına kadar geçen süre */
   firstTokenMs: number | null;
   totalMs: number;
 }
 
-/**
- * Akışlı sohbet isteği (`stream: true`). İçerik geldikçe `onContent` çağrılır; araç çağrıları parçalardan birleştirilir.
- * Sahne JSON'u bu sayede tamamı bitmeden okunmaya başlar (ilk sahne hazır olunca TTS'i başlar).
- */
+/** OpenAI-compatible streaming; Ollama supports this endpoint for local chat models. */
 export async function routellmStream(body: object, onContent?: (delta: string, full: string) => void): Promise<StreamResult> {
   const t0 = performance.now();
   const res = await fetch(BASE_URL + '/chat/completions', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+    headers: headers({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ ...body, stream: true }),
   });
-  if (!res.ok || !res.body) throw new RouteLLMError(res.status, await res.text());
+  if (!res.ok || !res.body) throw new LLMError(res.status, await res.text());
   const dec = new TextDecoder();
   let buf = '';
   let content = '';
