@@ -6,7 +6,7 @@ function safeSet(k: string, v: string | null) { try { if (v === null) localStora
 
 /**
  * Bekri's Arabic voice.
- * - Sunucu TTS'i açıksa RouteLLM ses modeli çalınır, seviye Web Audio analizörüyle ölçülür.
+ * - Sunucu TTS'i açıksa BEKRI local ses modeli çalınır, seviye Web Audio analizörüyle ölçülür.
  * - Ses cevaba sabitlenir (reply.voice). Bir sahnenin sunucu sesi alınamazsa bir kez yeniden denenir; yine olmazsa
  *   O CEVABIN KALANI tarayıcı sesine geçer. Önceden tek tek sahneler tarayıcı sesine düşebiliyor, sesler karışıyordu.
  */
@@ -30,7 +30,7 @@ class VoiceEngine {
   rate = 0.98;
   /** Bu çalmada kullanılan hız: ElevenLabs sesleri hızı sunucuda alır, tarayıcıda esnetilmez (1,0) */
   private playRate = 1.08;
-  /** "Jarvis efekti": sahne geçiş sesi */
+  /** "BEKRI efekti": sahne geçiş sesi */
   sfx = true;
   /** Bu cevap tarayıcı sesine geçti mi */
   private replyBrowser = false;
@@ -175,7 +175,7 @@ class VoiceEngine {
 
   /**
    * Uyanış tınısı (~1,4 sn): alçaktan yükselen yumuşak bir süpürme, üstünde iki parlak nota ve ince bir ışıltı.
-   * Web Audio ile üretilir; ayarlardaki "Jarvis efekti"nden bağımsızdır (uyanışın imzası).
+   * Web Audio ile üretilir; ayarlardaki "BEKRI efekti"nden bağımsızdır (uyanışın imzası).
    */
   chime() {
     const ctx = this.ctx;
