@@ -47,8 +47,8 @@ export interface NewsStats {
 }
 
 export interface SystemStats {
-  llm_ms: number | null;
-  llm_ok: boolean;
+  routellm_ms: number | null;
+  routellm_ok: boolean;
   devices_online: Device[];
   model: string;
 }
@@ -320,7 +320,7 @@ function demoDashboard(devices: Device[]): Dashboard {
         { title: 'Demo: Milli takım kadrosu açıklandı', source: 'Demo Spor', category: 'spor', image: null, published_at: new Date().toISOString() },
       ],
     },
-    system: { llm_ms: null, llm_ok: false, devices_online: devices, model: 'demo' },
+    system: { routellm_ms: null, routellm_ok: false, devices_online: devices, model: 'demo' },
   };
 }
 
@@ -340,6 +340,6 @@ export async function buildDashboard(opts: { devices: Device[]; model: string })
     weather,
     markets,
     news,
-    system: { llm_ms: ping?.ok ? ping.ms : null, llm_ok: !!ping?.ok, devices_online: opts.devices, model: opts.model },
+    system: { routellm_ms: ping?.ok ? ping.ms : null, routellm_ok: !!ping?.ok, devices_online: opts.devices, model: opts.model },
   };
 }
