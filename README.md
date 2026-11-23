@@ -37,7 +37,7 @@ npm run dev            # http://localhost:5173
 
 ```bash
 npm run test           # RSS kaynaklarını ve BEKRI model gateway tool calling'i test eder
-npm run models         # RouteLLM'de kullanılabilen modelleri listeler (ses modelleri dahil)
+npm run models         # yerel Ollama modellerini listeler
 ```
 
 ## Telefon ve tablette kullanmak
@@ -83,7 +83,7 @@ Notlar:
 
 ## Seslendiren
 
-`npm run voices` RouteLLM'deki ses modellerini × bilinen ses adlarını gerçek isteklerle sınar ve yalnızca iki testi geçenleri Ayarlar → Ses'te listeler: metni birebir okumak ve aynı cümleyi her seferinde aynı perdede okumak. Ölçüm: Gemini TTS aynı ses kimliğiyle her istekte başka bir perde üretiyor (bu yüzden ses "sürekli değişiyordu"); gpt-audio sesleri sabit kalıyor. Seçilen ses tüm cihazlarda ortaktır ve her cevaba sabitlenir: cevap sürerken değiştirilse de o cevap tek sesle biter.
+Varsayılan seslendirme tarayıcının yerel konuşma motorudur. Ses tanıma için whisper.cpp'yi ve bir yerel model dosyasını kurup `WHISPER_CPP_PATH` ile `WHISPER_MODEL_PATH` değerlerini ayarlayın. Ses kayıtları geçici dosyaya yazılır ve işlem sonunda silinir.
 
 ## Kullanım
 
@@ -175,7 +175,7 @@ Kitaplık bölgesinde çimdik gezegen oluşturmaz, kitap seçer. Kitap dışarı
 
 **Kapaklar:** Sunucu Open Library'de ad ve yazarla arar, bulursa `server/data/kapaklar/` altına kaydeder (çoğu zaman İngilizce baskının kapağı gelir). Türkçe baskının kapağını isterseniz **Ayarlar → Kitaplık**'tan telefonla fotoğrafını yükleyin. Kapak hiç yoksa kırpılan sırt görüntüsü ve adla sade bir kapak üretilir.
 
-**Bekri'in kitap defteri:** Adı bilinen bir kitap ilk açıldığında (ya da sesle eklendiğinde) Bekri RouteLLM ile sayfalarını doldurur: 3 cümlelik özet, 4-6 ana fikir, yazar hakkında, temalar, neden okumalı, kime uygun ve **sizin kitaplığınızdan** en fazla 4 benzer kitap. Bir kez yazılır, saklanır. Kurallar: model kitabı tanımıyorsa sayfa uydurmaz ("Bekri bu kitabı tanımıyor"); kitaptan birebir alıntı üretmez (alıntılar yalnızca sizin eklediklerinizdir). **Ayarlar → Kitaplık**'ta "Bekri doldursun / yeniden yaz" düğmesi de var. Sesle: *"Davranış'ın sayfalarını doldur"*.
+**Bekri'in kitap defteri:** Adı bilinen bir kitap ilk açıldığında (ya da sesle eklendiğinde) Bekri Ollama ile sayfalarını doldurur: 3 cümlelik özet, 4-6 ana fikir, yazar hakkında, temalar, neden okumalı, kime uygun ve **sizin kitaplığınızdan** en fazla 4 benzer kitap. Bir kez yazılır, saklanır. Kurallar: model kitabı tanımıyorsa sayfa uydurmaz ("Bekri bu kitabı tanımıyor"); kitaptan birebir alıntı üretmez (alıntılar yalnızca sizin eklediklerinizdir). **Ayarlar → Kitaplık**'ta "Bekri doldursun / yeniden yaz" düğmesi de var. Sesle: *"Davranış'ın sayfalarını doldur"*.
 
 **"Bu kitabın adı …":** Adı okunamamış bir kitabı El Kontrolü'nde açıp *"Bekri, bu kitabın adı Davranış"* deyin: Bekri "Tamamdır efendim, ekliyorum" der, kitap adlandırılır, kapağı aranır ve sayfaları birkaç saniyede dolar. Kitap açık değilken *"kitaplığıma Davranış'ı ekle"* derseniz eklenir ve sayfaları arka planda dolar.
 
@@ -345,7 +345,7 @@ Bu rehber, daha önce hiç kod çalıştırmamış biri için hazırlandı. Adı
 **Gerekenler:**
 - Mac ya da Windows bilgisayar
 - İnternet bağlantısı
-- **Abacus AI ChatLLM aboneliği** (ücretli; güncel fiyatı abacus.ai sitesinde görebilirsin). Bekri'in beyni olan RouteLLM API bu aboneliğin içinde geliyor.
+- **Ollama AI ChatLLM aboneliği** (ücretli; güncel fiyatı abacus.ai sitesinde görebilirsin). Bekri'in beyni olan RouteLLM API bu aboneliğin içinde geliyor.
 
 **Abonelik olmadan da deneyebilirsin:** API anahtarı eklemezsen Bekri **demo modunda** açılır. Arayüzü, animasyonları ve örnek (kurgusal) bir haber özetini görebilirsin. Gerçek haberleri anlatması için anahtar gerekiyor.
 
