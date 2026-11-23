@@ -1,7 +1,7 @@
 // `npm run test`: 1) RSS kaynaklarını, 2) yapılandırılmış yerel model bağlantısını kontrol eder.
 import Parser from 'rss-parser';
 import { FEEDS } from './news.js';
-import { API_KEY, CHAT_MODEL, routellm, type ChatResponse } from './llm.js';
+import { CHAT_MODEL, llmRequest, type ChatResponse } from './llm.js';
 import { TOOLS } from './tools.js';
 
 const parser = new Parser({ timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
