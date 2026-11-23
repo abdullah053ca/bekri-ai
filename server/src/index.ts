@@ -26,6 +26,8 @@ import type { Device, StoredMessage } from './types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
+// Bind to loopback by default so the private assistant is not exposed to the local network.
+const HOST = process.env.HOST || '127.0.0.1';
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN || '';
 const DATA_FILE = path.join(__dirname, '..', 'data', 'state.json');
 const DEVICES: Device[] = ['masaustu', 'tablet', 'telefon'];
@@ -281,7 +283,7 @@ app.delete('/api/memory/:id', (req, res) => {
 app.post('/api/video-blocked', (req, res) => {
   const id = String(req.body?.id ?? '');
   markBlocked(id);
-  console.log(`[youtube] Jarvis içinde oynamıyor (kod ${req.body?.code ?? '?'}): ${id}`);
+  console.log(`[youtube] BEKRI içinde oynamıyor (kod ${req.body?.code ?? '?'}): ${id}`);
   res.json({ ok: true });
 });
 
@@ -466,7 +468,7 @@ if (fs.existsSync(dist)) {
   app.get(/^(?!\/api).*/, (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   const v = currentVoice();
   console.log(`BEKRI sunucusu: http://localhost:${PORT}  ${MOCK ? '(demo modu)' : `(beyin: ${CHAT_MODEL})`}`);
   console.log(`[tts] seslendiren: ${voiceId(v)} · STT: ${STT_MODEL}`);
