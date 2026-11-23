@@ -6,7 +6,6 @@ import type { FaceDetector } from '@mediapipe/tasks-vision';
 import { makeMapper } from './tracker';
 
 const LOCAL_MODEL = '/models/blaze_face_short_range.tflite';
-const REMOTE_MODEL = 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
 const WASM = '/mediapipe/wasm';
 
 export interface FaceBox { x: number; y: number; w: number; h: number; score: number; nose: { x: number; y: number } | null }
@@ -16,7 +15,7 @@ async function modelPath(): Promise<string> {
     const r = await fetch(LOCAL_MODEL, { method: 'HEAD' });
     if (r.ok && !(r.headers.get('content-type') || '').includes('text/html')) return LOCAL_MODEL;
   } catch { /* yerel yok */ }
-  return REMOTE_MODEL;
+  throw new Error('Yerel yüz algılama modeli bulunamadı. Kurulum sırasında npm run el-modeli çalıştırın.');
 }
 
 export async function loadFaceDetector(): Promise<FaceDetector> {
