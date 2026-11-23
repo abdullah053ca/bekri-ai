@@ -29,7 +29,7 @@ export function TopBar({ me, online, model, connected, mock }: { me: Device; onl
       </div>
       <div className="devices">
         {(['masaustu', 'tablet', 'telefon'] as Device[]).map(d => (
-          <div key={d} className={'dev ' + (online.includes(d) ? 'on ' : '') + (d === me ? 'me' : '')} title={DEVICE_LABEL[d]}>
+          <div key={d} className={'dev ' + (online.includes(d) ? 'on ' : '') + (d === me ? 'me' : '')} title={d === 'telefon' ? 'الهاتف' : d === 'tablet' ? 'الجهاز اللوحي' : 'الكمبيوتر'}>
             <DeviceIcon d={d} />
             <span>{DEVICE_LABEL[d]}</span>
           </div>
