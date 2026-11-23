@@ -40,7 +40,7 @@ interface State {
   lastDevice: Device | null;
   /** Seslendiren: Ayarlar'dan seçilir, tüm cihazlarda ortak. .env yalnızca varsayılan. */
   voice?: VoiceSel;
-  /** "Jarvis efekti": sahne geçiş sesi */
+  /** "BEKRI efekti": sahne geçiş sesi */
   sfx?: boolean;
   /** İki alkışla uyanma ayarları (tüm cihazlarda ortak) */
   wake?: WakeConfig;
@@ -89,7 +89,7 @@ function warmGreetings(v: VoiceSel = currentVoice()) {
 }
 
 // ---------- SSE: cihazlar arası anlık senkron ----------
-/** role 'camera': Jarvis'in gözü olan cihaz (eski iPhone); ekran cihazı sayılmaz (presence, karşılama vb.) */
+/** role 'camera': BEKRI kamera sistemi olan cihaz (eski iPhone); ekran cihazı sayılmaz (presence, karşılama vb.) */
 interface Client { id: string; device: Device; role: 'screen' | 'camera'; res: Response }
 const clients = new Map<string, Client>();
 function broadcast(event: object) {
@@ -351,7 +351,7 @@ app.post('/api/chat', async (req, res) => {
   const history = state.messages.slice();
   state.messages.push(userMsg);
   broadcast({ type: 'user', message: userMsg, origin: client });
-  // Açılışın sesi diskte hazır: brifing yazılmayı beklemeden Jarvis hemen cevap versin.
+  // Açılışın sesi diskte hazır: brifing yazılmayı beklemeden BEKRI hemen cevap versin.
   if (BRIEF_TRIGGER.test(text)) broadcast({ type: 'opening', text: BRIEF_OPENING, voice, origin: client });
 
   let total = 0;
@@ -415,7 +415,7 @@ app.get('/api/tts', async (req, res) => {
   }
 });
 
-// ---------- Ses tanıma: MediaRecorder kaydı → RouteLLM ----------
+// ---------- Ses tanıma: yerel/sağlayıcı STT katmanı ----------
 app.post('/api/stt', express.raw({ type: ['audio/*', 'application/octet-stream'], limit: '10mb' }), async (req, res) => {
   const mime = String(req.headers['content-type'] || '');
   if (!Buffer.isBuffer(req.body) || req.body.length < 1000) return res.status(400).json({ error: 'kayıt boş' });
@@ -468,7 +468,7 @@ if (fs.existsSync(dist)) {
 
 app.listen(PORT, () => {
   const v = currentVoice();
-  console.log(`Jarvis sunucusu: http://localhost:${PORT}  ${MOCK ? '(DEMO MODU — API anahtarı yok)' : `(beyin: ${CHAT_MODEL})`}`);
+  console.log(`BEKRI sunucusu: http://localhost:${PORT}  ${MOCK ? '(demo modu)' : `(beyin: ${CHAT_MODEL})`}`);
   console.log(`[tts] seslendiren: ${voiceId(v)} · STT: ${STT_MODEL}`);
   if (!usableVoices().length) console.warn('[tts] Doğrulanmış ses kataloğu yok: `npm run voices` çalıştırın.');
   warmOpening(v).catch(e => console.warn('Açılış sesi hazırlanamadı:', e));
