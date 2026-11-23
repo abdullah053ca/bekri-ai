@@ -29,6 +29,9 @@ const PORT = Number(process.env.PORT || 8787);
 // Bind to loopback by default so the private assistant is not exposed to the local network.
 const HOST = process.env.HOST || '127.0.0.1';
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN || '';
+if (!['127.0.0.1', '::1', 'localhost'].includes(HOST) && !ACCESS_TOKEN) {
+  throw new Error('Gizlilik için ağ arayüzünde dinlerken ACCESS_TOKEN zorunludur.');
+}
 const DATA_FILE = path.join(__dirname, '..', 'data', 'state.json');
 const DEVICES: Device[] = ['masaustu', 'tablet', 'telefon'];
 
