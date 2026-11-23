@@ -88,6 +88,7 @@ export function envVoice(): { sel: VoiceSel; warning?: string } {
   const voice = process.env.TTS_VOICE || '';
   const fallback = bestVoice();
   const safe: VoiceSel = fallback ? { model: fallback.model, voice: fallback.voice, speed: DEFAULT_RATE } : { model: 'gpt-audio-1.5', voice: 'onyx', speed: DEFAULT_RATE };
+  if (model === BROWSER) return { sel: { model: BROWSER, voice: '', speed: DEFAULT_RATE } };
   if (!model) return { sel: safe, warning: `TTS_MODEL boş; varsayılan ses: ${voiceId(safe)}` };
   if (isRoutedModel(model)) return { sel: safe, warning: `TTS_MODEL=${model} yönlendirmeli bir model; TTS için REDDEDİLDİ (her istekte başka ses seçebilir). Kullanılan: ${voiceId(safe)}` };
   if (!voice) return { sel: safe, warning: `TTS_VOICE boş; sabit bir ses kimliği şart. Kullanılan: ${voiceId(safe)}` };
