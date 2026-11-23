@@ -1,4 +1,4 @@
-// API anahtarı yokken (ya da MOCK=1) arayüzü geliştirmek için demo cevaplar.
+// yerel model bağlantısı yokken (ya da MOCK=1) arayüzü geliştirmek için demo cevaplar.
 // Haberler KURGUSALDIR; kaynak adları bilerek "Demo ..." şeklindedir.
 import { __setCacheForTest } from './news.js';
 import type { Device, NewsItem, Sahne } from './types.js';
