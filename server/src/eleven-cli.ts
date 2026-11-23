@@ -3,6 +3,10 @@
 // npm run eleven -- ekle <public_owner_id> <voice_id> <ad>   → kütüphanedeki sesi hesaba ekler (Ayarlar'da görünür)
 import { ELEVEN_KEY, ELEVEN_MODEL, elevenAddShared, elevenSearchTurkish, elevenUsage, elevenVoices } from './eleven.js';
 
+if (process.env.ENABLE_WEB_FEATURES !== '1') {
+  console.error('Gizlilik için dış ses servisleri kapalı. Kullanmak için ENABLE_WEB_FEATURES=1 ayarını açın.');
+  process.exit(1);
+}
 if (!ELEVEN_KEY) {
   console.error('ELEVENLABS_API_KEY yok. server/.env dosyasına ekleyin.');
   process.exit(1);
@@ -12,7 +16,7 @@ const [cmd, ...args] = process.argv.slice(2);
 if (cmd === 'ekle') {
   const [owner, id, ...name] = args;
   if (!owner || !id) { console.error('Kullanım: npm run eleven -- ekle <public_owner_id> <voice_id> <ad>'); process.exit(1); }
-  const vid = await elevenAddShared(owner, id, name.join(' ') || 'Jarvis');
+  const vid = await elevenAddShared(owner, id, name.join(' ') || 'BEKRI');
   console.log(`Eklendi: ${vid} — Ayarlar → Seslendiren'de görünür.`);
   process.exit(0);
 }
