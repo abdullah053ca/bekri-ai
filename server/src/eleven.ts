@@ -27,6 +27,7 @@ export interface ElevenCtx { prev?: string; next?: string }
 const clampSpeed = (s: number) => (Number.isFinite(s) ? Math.min(1.2, Math.max(0.7, s)) : 1);
 
 export async function elevenSpeak(text: string, voiceId: string, model: string, speed: number, ctx: ElevenCtx = {}): Promise<Buffer> {
+  if (!elevenReady()) throw new Error('Dış ses servisleri kapalı. ENABLE_WEB_FEATURES=1 ayarlayın.');
   const skip = unsupported.get(model) ?? new Set<string>();
   const body: Record<string, unknown> = {
     text,
@@ -66,7 +67,7 @@ export interface ElevenVoice { voice_id: string; name: string; labels?: Record<s
 let voiceCache: { at: number; list: ElevenVoice[] } | null = null;
 /** Hesaptaki sesler ("My Voices"): Ayarlar'da listelenir. 5 dk önbellek. */
 export async function elevenVoices(): Promise<ElevenVoice[]> {
-  if (!ELEVEN_KEY) return [];
+  if (!elevenReady()) return [];
   if (voiceCache && Date.now() - voiceCache.at < 300_000) return voiceCache.list;
   try {
     const r = await fetch(`${API}/voices`, { headers: headers(), signal: AbortSignal.timeout(10_000) });
@@ -83,7 +84,7 @@ export async function elevenVoices(): Promise<ElevenVoice[]> {
 export interface ElevenUsage { used: number; limit: number; resetAt: string | null; tier: string }
 /** Bu ayki karakter kullanımı (gerçek, ElevenLabs hesabından) */
 export async function elevenUsage(): Promise<ElevenUsage | null> {
-  if (!ELEVEN_KEY) return null;
+  if (!elevenReady()) return null;
   try {
     const r = await fetch(`${API}/user/subscription`, { headers: headers(), signal: AbortSignal.timeout(10_000) });
     if (!r.ok) return null;
