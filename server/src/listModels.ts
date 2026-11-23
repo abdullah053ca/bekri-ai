@@ -1,18 +1,18 @@
 // Ollama'de kullanılabilen modelleri kategorize eder ve önerilen .env değerlerini yazar: `npm run models`
 // Kategori, /models'in kendi alanlarından gelir (model_type + input/output_modalities); ad tahmini yok.
-import { API_KEY, routellm } from './routellm.js';
+import { API_KEY, routellm } from './llm.js';
 import { bestVoice, pitchSpread, rankedVoices, usableVoices } from './tts.js';
 
 
 
 interface M { id: string; model_type?: string; input_modalities?: string[]; output_modalities?: string[] }
-const all = (await routellm<{ data: M[] }>('/models')).data;
+const all = (await llmRequest<{ data: M[] }>('/models')).data;
 const has = (m: M, side: 'input_modalities' | 'output_modalities', x: string) => !!m[side]?.includes(x);
 
 const groups: [string, (m: M) => boolean][] = [
   
   ['Metin', m => m.model_type === 'text_generation' && !has(m, 'input_modalities', 'image')],
-  ['Görsel girdi (fotoğraf analizi)', m => m.model_type === 'text_generation' && !m.id.startsWith('route-llm') && has(m, 'input_modalities', 'image')],
+  ['Görsel girdi (fotoğraf analizi)', m => m.model_type === 'text_generation' && !m.id.startsWith('ollama') && has(m, 'input_modalities', 'image')],
   ['Ses girdisi (STT olarak kullanılabilir)', m => has(m, 'input_modalities', 'audio') && has(m, 'output_modalities', 'text')],
   ['Ses üretimi (TTS)', m => m.model_type === 'audio_generation'],
   ['Görsel üretimi', m => m.model_type === 'image_generation'],
