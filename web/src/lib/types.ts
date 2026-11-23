@@ -25,7 +25,7 @@ export interface VoiceOption { id: string; model: string; voice: string; label: 
 
 export interface Sahne { ses: string; gorsel: Gorsel }
 
-export interface JarvisReply {
+export interface BekriReply {
   id: string;
   sahneler: Sahne[];
   detay: string;
@@ -44,7 +44,7 @@ export interface StoredMessage {
   text: string;
   device: Device;
   at: string;
-  reply?: JarvisReply;
+  reply?: BekriReply;
 }
 
 export type CoreState = 'idle' | 'listening' | 'thinking' | 'speaking';
