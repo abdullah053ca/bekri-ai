@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runJarvis } from './agent.js';
+import { runBekri } from './agent.js';
 import { BRIEF_OPENING, BRIEF_TRIGGER } from './brief.js';
 import { buildDashboard } from './dashboard.js';
 import { IMG_DIR } from './imagegen.js';
@@ -116,7 +116,7 @@ app.use(express.json({ limit: '12mb' })); // kamera fotoğrafı (istemci ~1280 p
 // İsteğe bağlı erişim koruması (tünel/deploy için önerilir)
 app.use('/api', (req: Request, res: Response, next: NextFunction) => {
   if (!ACCESS_TOKEN) return next();
-  const t = req.header('x-jarvis-token') || (req.query.token as string);
+  const t = req.header('x-bekri-token') || (req.query.token as string);
   if (t === ACCESS_TOKEN) return next();
   res.status(401).json({ error: 'yetkisiz' });
 });
@@ -333,7 +333,7 @@ app.post('/api/chat', async (req, res) => {
   const client = String(req.body.client || '');
   const device = asDevice(req.body.device);
   if (!text && !image) return res.status(400).json({ error: 'boş mesaj' });
-  if (busy) return res.status(409).json({ error: 'Jarvis şu an başka bir cevabı hazırlıyor' });
+  if (busy) return res.status(409).json({ error: 'BEKRI şu an başka bir cevabı hazırlıyor' });
   busy = true;
   const t0 = Date.now();
 
@@ -357,7 +357,7 @@ app.post('/api/chat', async (req, res) => {
   let total = 0;
   let firstTts = false;
   try {
-    const reply = await runJarvis({
+    const reply = await runBekri({
       text,
       image,
       device,
