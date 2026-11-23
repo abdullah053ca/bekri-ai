@@ -61,12 +61,12 @@ const Mark2 = lazy(() => import('./mark2/Mark2'));
 const HandControl = lazy(() => import('./hands/HandControl'));
 /** ?el=1 açılışta el kontrolünü açar, ?el=demo kamerasız sentetik ellerle gösterir */
 const EL_PARAM = ((q: string | null) => (q === 'demo' ? 'demo' : q === '1' || q === 'kamera' ? 'kamera' : null))(new URLSearchParams(location.search).get('el'));
-/** "Jarvis, el kontrolünü aç / kapat" — sunucuya gitmeden arayüzde karşılanır */
+/** "Bekri, فعّل التحكم بالإيماءات / أوقفه" — sunucuya gitmeden arayüzde karşılanır */
 const EL_OPEN = /(?:\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(aç|başlat|etkinleştir)|^(el kontrolü|büyü modu)$|(?:افتح|شغّل|فعّل).*(?:التحكم باليد|التحكم بالإيماءات|الإيماءات))/i;
 const EL_CLOSE = /(?:\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü]*)\b.*\b(kapat|durdur)|(?:أغلق|أوقف|عطّل).*(?:التحكم باليد|التحكم بالإيماءات|الإيماءات))/i;
 /** ?el=demo&kitaplik=1: kitaplık demosu (prosedürel raf) */
 const KITAPLIK_DEMO = new URLSearchParams(location.search).get('kitaplik') === '1';
-/** "Jarvis, kitaplığımı tara" / "kitaplığı tarar mısın" / "rafları tara" (El Kontrolü kamerasıyla) */
+/** "بكري، امسح مكتبتي" / "kitaplığı tarar mısın" / "rafları tara" (El Kontrolü kamerasıyla) */
 const KITAPLIK_TARA = /(?:(?:kitapl[ıi]k|kitapl[ıi][gğ][ıi](m[ıi])?|raflar[ıi](m[ıi])?)\s.*?\btar(a|ar|at)|(?:المكتبة|مكتبتي|الرفوف).*(?:امسح|افحص|صوّر|اقرأ)|(?:امسح|افحص|صوّر|اقرأ).*(?:المكتبة|مكتبتي|الرفوف))/i;
 /** Kitap açıkken: "Jarvis, bunu özetle", "kitabı özetle", "özetini oku" */
 /** Kitap açıkken: "Jarvis, not al: …", "buna not ekle …", "alıntı ekle: …" → o kitaba eklenir (modele gitmez) */
