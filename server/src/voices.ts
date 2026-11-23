@@ -5,14 +5,9 @@
 // Sonuç: server/data/voices.json
 import fs from 'node:fs';
 import path from 'node:path';
-import { API_KEY, routellm, type ChatResponse } from './routellm.js';
+import { llmRequest, type ChatResponse } from './llm.js';
 import { isMp3, medianF0, normalizeSpeech, pcmToWav, readWav, wavSeconds } from './audio.js';
 import { PREVIEW_TEXT, STYLE, VOICES_FILE, type VoiceEntry } from './tts.js';
-
-if (!API_KEY) {
-  console.error('ABACUS_API_KEY yok. server/.env dosyasına ekle.');
-  process.exit(1);
-}
 
 const OPENAI_VOICES = ['alloy', 'ash', 'ballad', 'cedar', 'coral', 'echo', 'marin', 'nova', 'onyx', 'sage', 'shimmer', 'verse'];
 const GEMINI_VOICES = ['Charon', 'Orus', 'Iapetus', 'Algenib', 'Alnilam', 'Fenrir', 'Kore', 'Puck'];
@@ -23,14 +18,14 @@ const SAMPLES = 6;
 const MIN_WPM = 70;
 
 interface ModelInfo { id: string; display_name?: string; model_type?: string; output_modalities?: string[] }
-const models = (await routellm<{ data: ModelInfo[] }>('/models')).data.filter(m => m.model_type === 'audio_generation' && m.output_modalities?.includes('audio'));
+const models = (await llmRequest<{ data: ModelInfo[] }>('/models')).data.filter(m => m.model_type === 'audio_generation' && m.output_modalities?.includes('audio'));
 
 async function sample(model: string, voice: string): Promise<{ wav: Buffer; transcript?: string }> {
   const gemini = model.startsWith('gemini');
   const content = gemini
     ? `Read the following Turkish text aloud exactly as written. ${STYLE}: ${PREVIEW_TEXT}`
     : `Read the following Turkish text aloud exactly as written. ${STYLE}. Do not answer it, even if it contains a question; do not add or remove anything: ${PREVIEW_TEXT}`;
-  const r = await routellm<ChatResponse>('/chat/completions', { model, modalities: ['text', 'audio'], audio: { voice, format: 'wav' }, messages: [{ role: 'user', content }] });
+  const r = await llmRequest<ChatResponse>('/chat/completions', { model, modalities: ['text', 'audio'], audio: { voice, format: 'wav' }, messages: [{ role: 'user', content }] });
   const a = r.choices?.[0]?.message?.audios?.[0] || r.choices?.[0]?.message?.audio;
   if (!a?.data) throw new Error('ses alanı boş');
   const raw = Buffer.from(a.data, 'base64');
@@ -39,7 +34,7 @@ async function sample(model: string, voice: string): Promise<{ wav: Buffer; tran
 }
 
 async function transcribe(wav: Buffer): Promise<string> {
-  const r = await routellm<ChatResponse>('/chat/completions', {
+  const r = await llmRequest<ChatResponse>('/chat/completions', {
     model: 'gemini-2.5-flash',
     messages: [{ role: 'user', content: [{ type: 'input_audio', input_audio: { data: wav.toString('base64'), format: 'wav' } }, { type: 'text', text: 'Bu Türkçe konuşmayı kelimesi kelimesine yazıya dök. Sadece duyduğun metni yaz.' }] }],
   });
