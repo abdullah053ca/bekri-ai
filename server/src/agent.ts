@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { buildSystemPrompt } from './prompt.js';
-import { CHAT_MODEL, MOCK, RouteLLMError, routellmStream, type ChatMessage, type ContentPart } from './routellm.js';
+import { CHAT_MODEL, MOCK, LLMError, routellmStream, type ChatMessage, type ContentPart } from './routellm.js';
 import { TOOLS, runTool, type ToolProgress } from './tools.js';
 import { findNewsById } from './news.js';
 import { resolveFastPhoto, resolveSlowPhoto, type PhotoMode } from './photos.js';
@@ -15,7 +15,7 @@ import { BRIEF_OPENING, BRIEF_TRIGGER } from './brief.js';
 import type { Device, Gorsel, GorselWithPhoto, JarvisReply, Photo, Sahne, StoredMessage } from './types.js';
 
 const MAX_ROUNDS = 5;
-/** Görsel girdi için model: boşsa CHAT_MODEL (Jarvis router'ı görsel isteği kendisi yönlendirir). */
+/** Görsel girdi modeli; yerel kullanımda Ollama'daki görsel destekli model seçilir. */
 const VISION_MODEL = process.env.VISION_MODEL || CHAT_MODEL;
 
 const normalizeTr = (s: string) => s.toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
@@ -345,7 +345,7 @@ export async function runBekri(opts: RunOptions): Promise<JarvisReply> {
     try {
       res = await routellmStream(body, (_d, full) => parser.push(full).forEach(enqueue));
     } catch (e) {
-      if (forceNews && e instanceof RouteLLMError && e.status === 400) {
+      if (forceNews && e instanceof LLMError && e.status === 400) {
         forceNews = false; // sağlayıcı zorunlu tool_choice'u desteklemiyorsa 'auto' ile tekrar dene
         round--;
         continue;
