@@ -47,8 +47,8 @@ export interface NewsStats {
 }
 
 export interface SystemStats {
-  routellm_ms: number | null;
-  routellm_ok: boolean;
+  llm_ms: number | null;
+  llm_ok: boolean;
   devices_online: Device[];
   model: string;
 }
@@ -195,7 +195,7 @@ function parseTcmb(xml: string): { date: string; rates: Rates } | null {
 }
 
 async function fetchTcmb(url: string): Promise<{ date: string; rates: Rates } | 'yok'> {
-  const r = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT), headers: { 'User-Agent': 'Mozilla/5.0 (Jarvis)' } });
+  const r = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT), headers: { 'User-Agent': 'Mozilla/5.0 (BEKRI)' } });
   if (r.status === 404) return 'yok'; // hafta sonu / resmi tatil: bülten yok
   if (!r.ok) throw new Error(`TCMB HTTP ${r.status}`);
   const parsed = parseTcmb(await r.text());
@@ -320,7 +320,7 @@ function demoDashboard(devices: Device[]): Dashboard {
         { title: 'Demo: Milli takım kadrosu açıklandı', source: 'Demo Spor', category: 'spor', image: null, published_at: new Date().toISOString() },
       ],
     },
-    system: { routellm_ms: null, routellm_ok: false, devices_online: devices, model: 'demo' },
+    system: { llm_ms: null, llm_ok: false, devices_online: devices, model: 'demo' },
   };
 }
 
@@ -340,6 +340,6 @@ export async function buildDashboard(opts: { devices: Device[]; model: string })
     weather,
     markets,
     news,
-    system: { routellm_ms: ping?.ok ? ping.ms : null, routellm_ok: !!ping?.ok, devices_online: opts.devices, model: opts.model },
+    system: { llm_ms: ping?.ok ? ping.ms : null, llm_ok: !!ping?.ok, devices_online: opts.devices, model: opts.model },
   };
 }
