@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Router, type Request, type Response } from 'express';
-import { CHAT_MODEL, MOCK, routellm, type ChatResponse } from './routellm.js';
+import { CHAT_MODEL, MOCK, llmRequest, type ChatResponse } from './llm.js';
 import { VISION_MODEL } from './camera.js';
 
 // KITAPLIK_DATA: testte geçici klasör (gerçek kitaplık bozulmasın)
@@ -236,7 +236,7 @@ const PHOTO_PROMPT =
 /** Görüntü modeli çağrısı (testte sahte cevapla değiştirilir) */
 export const deps = {
   async vision(jpegBase64: string, prompt = SCAN_PROMPT): Promise<string> {
-    const r = await routellm<ChatResponse>('/chat/completions', {
+    const r = await llmRequest<ChatResponse>('/chat/completions', {
       model: VISION_MODEL,
       messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${jpegBase64}` } }] }],
     });
@@ -339,6 +339,7 @@ const UA = { 'User-Agent': 'Jarvis kisisel asistan (kitaplik kapagi)' };
 const coverFile = (id: string) => path.join(COVERS, `${id.replace(/[^\w-]/g, '')}.jpg`);
 
 async function openLibraryCover(ad: string, yazar: string | null): Promise<Buffer | null> {
+  if (process.env.ENABLE_WEB_FEATURES !== '1') return null;
   const tries = [
     new URLSearchParams({ title: ad, ...(yazar ? { author: yazar } : {}), limit: '5', fields: 'cover_i,title' }),
     new URLSearchParams({ q: `${ad} ${yazar ?? ''}`.trim(), limit: '5', fields: 'cover_i,title' }),
@@ -386,7 +387,7 @@ const fillPrompt = (b: Kitap, shelf: string[]) =>
 export const chatDeps = {
   async chat(prompt: string): Promise<string> {
     if (MOCK) return JSON.stringify({ biliyorum: true, ozet: 'Örnek özet: gerçek içerik için ABACUS_API_KEY gerekir. Bu bir deneme metnidir. Kitap kaydedildi.', anaFikirler: ['Deneme fikri bir.', 'Deneme fikri iki.', 'Deneme fikri üç.', 'Deneme fikri dört.'], yazarHakkinda: null, temalar: ['deneme'], nedenOku: null, kimeUygun: null, benzer: [] });
-    const r = await routellm<ChatResponse>('/chat/completions', { model: CHAT_MODEL, messages: [{ role: 'user', content: prompt }] });
+    const r = await llmRequest<ChatResponse>('/chat/completions', { model: CHAT_MODEL, messages: [{ role: 'user', content: prompt }] });
     return String(r.choices?.[0]?.message?.content ?? '');
   },
 };
