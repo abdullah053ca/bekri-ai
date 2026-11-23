@@ -1,12 +1,12 @@
-// Ses tanıma (STT) RouteLLM'den: tarayıcının Web Speech API'si iPhone'da güvenilir değil, yalnızca yedek.
-// Ölçüm (5 Ekim 2026): /audio/transcriptions RouteLLM'de yok (404). Ses girdili sohbet modelleri arasında
+// Ses tanıma (STT) BEKRI model gateway'den: tarayıcının Web Speech API'si iPhone'da güvenilir değil, yalnızca yedek.
+// Ölçüm (5 Ekim 2026): /audio/transcriptions BEKRI model gateway'de yok (404). Ses girdili sohbet modelleri arasında
 // gemini-2.5-flash 2,7 sn'de birebir doğru yazdı; gemini-2.5-pro 9 sn; gpt-audio-1.5 metni bozdu.
-import { API_KEY, BASE_URL, routellm, type ChatResponse } from './routellm.js';
+import { API_KEY, BASE_URL, routellm, type ChatResponse } from './llm.js';
 
 export const STT_MODEL = process.env.STT_MODEL || 'gemini-2.5-flash';
 let transcriptionsEndpoint: boolean | null = null; // ilk denemeden sonra hafızada
 
-/** MediaRecorder MIME türü → RouteLLM input_audio biçimi */
+/** MediaRecorder MIME türü → BEKRI model gateway input_audio biçimi */
 export function audioFormat(mime: string): string | null {
   const m = mime.toLowerCase();
   if (m.includes('webm')) return 'webm';
@@ -36,7 +36,7 @@ export async function transcribe(audio: Buffer, mime: string): Promise<{ text: s
     transcriptionsEndpoint = false;
   }
 
-  const resp = await routellm<ChatResponse>('/chat/completions', {
+  const resp = await llmRequest<ChatResponse>('/chat/completions', {
     model: STT_MODEL,
     messages: [
       {
