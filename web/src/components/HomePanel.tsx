@@ -77,7 +77,7 @@ function FilterCard({ d, now }: { d: FilterCoffee; now: number }) {
   const busy = d.durum === 'demleniyor';
   return (
     <div className={'hp-card coffee' + (busy ? ' busy' : '') + (d.durum === 'sicak_tutuyor' ? ' done' : '')}>
-      <header><span className="hp-room">{d.ad}</span><span className="hp-st">{statusText(d, now).toLocaleUpperCase('tr')}</span></header>
+      <header><span className="hp-room">{d.ad}</span><span className="hp-st">{statusText(d, now).toLocaleUpperCase('ar')}</span></header>
       <Ring p={progressOf(d, now)}>{busy ? `${Math.round(progressOf(d, now) * 100)}%` : d.durum === 'sicak_tutuyor' ? '♨' : '—'}</Ring>
       <label>Fincan</label>
       <div className="seg">{[1, 2, 3, 4].map(n => <button key={n} className={d.fincan === n ? 'on' : ''} disabled={busy} onClick={() => homeAct(d.id, { islem: 'ayarla', fincan: n })}>{n}</button>)}</div>
