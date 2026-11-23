@@ -1,5 +1,5 @@
 // "İki alkışla uyanma": uyanış ayarları (tüm cihazlarda ortak), karşılama metni ve gerçek sistem kontrolleri.
-import { API_KEY, BASE_URL, MOCK } from './routellm.js';
+import { API_KEY, BASE_URL, MOCK } from './llm.js';
 import { SOURCE_COUNT, newsCacheStats, newsSnapshot } from './news.js';
 import type { Device } from './types.js';
 
@@ -81,12 +81,12 @@ export interface Health {
   devices: { online: Device[]; total: number };
 }
 
-/** RouteLLM'e kısa ve taze bir istek (önbelleksiz): gerçek gecikme. */
-async function pingRouteLLM(): Promise<{ ok: boolean; ms: number | null }> {
-  if (MOCK || !API_KEY) return { ok: false, ms: null };
+/** BEKRI yerel model'e kısa ve taze bir istek (önbelleksiz): gerçek gecikme. */
+async function pingLocalModel(): Promise<{ ok: boolean; ms: number | null }> {
+  if (MOCK) return { ok: false, ms: null };
   const t0 = performance.now();
   try {
-    const r = await fetch(`${BASE_URL}/models`, { headers: { Authorization: `Bearer ${API_KEY}` }, signal: AbortSignal.timeout(4000) });
+    const r = await fetch(`${BASE_URL}/models`, { headers: API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}, signal: AbortSignal.timeout(4000) });
     await r.arrayBuffer();
     return { ok: r.ok, ms: Math.round(performance.now() - t0) };
   } catch {
@@ -98,11 +98,11 @@ export async function health(online: Device[]): Promise<Health> {
   // Haber kaynakları: son taramanın sonucu. Hiç tarama yoksa en fazla 2 sn bekle, gelmezse "bilinmiyor".
   let stats = newsCacheStats();
   if (!stats) {
-    await Promise.race([newsSnapshot().catch(() => null), new Promise(r => setTimeout(r, 2000))]);
+    if (process.env.ENABLE_WEB_FEATURES === '1') await Promise.race([newsSnapshot().catch(() => null), new Promise(r => setTimeout(r, 2000))]);
     stats = newsCacheStats();
   }
   return {
-    routellm: await pingRouteLLM(),
+    routellm: await pingLocalModel(),
     sources: { ok: stats?.scanned ?? 0, total: SOURCE_COUNT, known: !!stats },
     devices: { online, total: DEVICES.length },
   };
