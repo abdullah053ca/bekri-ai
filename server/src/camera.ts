@@ -1,4 +1,4 @@
-// Kamera cihazları: eski bir iPhone Jarvis'in "gözü" olur.
+// Kamera cihazları: eski bir iPhone BEKRI'nin "gözü" olur.
 // - Canlı görüntü kamera ile izleyici arasında doğrudan WebRTC ile akar; sunucu yalnızca sinyal taşır.
 // - WebRTC kurulamazsa aralıklı kare modu: kamera saniyede 1 JPEG gönderir, sunucu yalnızca SON kareyi bellekte tutar.
 // - kameraya_bak: Jarvis anlık bir kare ister ve BEKRI model gateway görüntü modeline sorar.
@@ -7,9 +7,9 @@
 import 'dotenv/config';
 import express, { type Request, type Response, Router } from 'express';
 import { randomUUID } from 'node:crypto';
-import { routellm, CHAT_MODEL, type ChatResponse } from './llm.js';
+import { llmRequest, CHAT_MODEL, type ChatResponse } from './llm.js';
 
-export const CAMERA_ENABLED = !!process.env.ACCESS_TOKEN;
+export const CAMERA_ENABLED = process.env.CAMERA_ENABLED === '1' || !!process.env.ACCESS_TOKEN;
 /** Görüntü anlama modeli (kameraya_bak). npm run models: input_modalities içinde "image" olanlar. */
 export const VISION_MODEL = process.env.VISION_MODEL || CHAT_MODEL;
 const MAX_VIEWERS = 3;
@@ -103,7 +103,7 @@ export function iceServers() {
 export function cameraRouter(): Router {
   const r = Router();
   // Token yoksa kamera uç noktalarının hiçbiri çalışmaz (genel /api koruması token'ı zaten doğrular)
-  r.use(['/api/cameras', '/api/rtc'], (_req, res, next) => (CAMERA_ENABLED ? next() : res.status(403).json({ error: 'Kamera özelliği kapalı: ACCESS_TOKEN tanımlı değil.' })));
+  r.use(['/api/cameras', '/api/rtc'], (_req, res, next) => (CAMERA_ENABLED ? next() : res.status(403).json({ error: 'Kamera özelliği kapalı: CAMERA_ENABLED=1 ayarlayın.' })));
 
   const cam = (req: Request, res: Response): Cam | null => {
     const c = cams.get(String(req.params.id));
@@ -162,7 +162,7 @@ export function cameraRouter(): Router {
     res.json({ ok: true });
   });
 
-  // Kare: aralıklı kare modu ya da Jarvis'in istediği anlık kare (?req=). Yalnızca bellekte, yalnızca son kare.
+  // Kare: aralıklı kare modu ya da BEKRI'nin istediği anlık kare (?req=). Yalnızca bellekte, yalnızca son kare.
   r.post('/api/cameras/:id/frame', express.raw({ type: ['image/jpeg', 'application/octet-stream'], limit: '4mb' }), (req, res) => {
     const c = cam(req, res);
     if (!c) return;
@@ -232,7 +232,7 @@ export function cameraRouter(): Router {
 
 /** kameraya_bak aracı: anlık kare → BEKRI model gateway görüntü modeli. Çıktı modele gider (veri, talimat değil). */
 export async function lookAtCamera(kamera: string, soru: string): Promise<object> {
-  if (!CAMERA_ENABLED) return { hata: 'Kamera özelliği kapalı (ACCESS_TOKEN tanımlı değil). Bunu söyle.' };
+  if (!CAMERA_ENABLED) return { hata: 'Kamera özelliği kapalı (CAMERA_ENABLED=1 değil). Bunu söyle.' };
   const all = [...cams.values()];
   if (!all.length) return { hata: 'Tanımlı kamera yok. Bir cihazda Ayarlar → Bu cihazın rolü → Kamera seçilmeli.' };
   const q = fold(kamera || '');
@@ -263,7 +263,7 @@ export async function lookAtCamera(kamera: string, soru: string): Promise<object
     return { hata: `${c.label} kamera yanıt vermedi (5 sn içinde kare gelmedi). Görüntü yok; uydurma.` };
   }
   io.broadcast({ type: 'camera_look', camId: c.id, phase: 'frozen', at: frame.at });
-  console.log(`[kamera] ${c.label} · Jarvis baktı · ${Math.round(frame.buf.length / 1024)} KB · ${VISION_MODEL}`);
+  console.log(`[kamera] ${c.label} · BEKRI baktı · ${Math.round(frame.buf.length / 1024)} KB · ${VISION_MODEL}`);
 
   const prompt =
     `Bu, bir ev kamerasından az önce alınmış tek bir kare${c.location ? ` (konum: ${c.location})` : ''}. Soru: ${soru || 'Karede ne var?'}\n` +
