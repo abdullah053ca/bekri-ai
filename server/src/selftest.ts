@@ -1,7 +1,7 @@
 // `npm run test`: 1) RSS kaynaklarını, 2) yapılandırılmış yerel model bağlantısını kontrol eder.
 import Parser from 'rss-parser';
 import { FEEDS } from './news.js';
-import { API_KEY, CHAT_MODEL, routellm, type ChatResponse } from './routellm.js';
+import { API_KEY, CHAT_MODEL, routellm, type ChatResponse } from './llm.js';
 import { TOOLS } from './tools.js';
 
 const parser = new Parser({ timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -24,7 +24,7 @@ if (!API_KEY) {
 console.log(`\n— Tool calling (${CHAT_MODEL}) —`);
 for (let i = 1; i <= 3; i++) {
   try {
-    const r = await routellm<ChatResponse>('/chat/completions', {
+    const r = await llmRequest<ChatResponse>('/chat/completions', {
       model: CHAT_MODEL,
       messages: [{ role: 'user', content: 'Günaydın, bugünün gündemini özetler misin?' }],
       tools: TOOLS,
