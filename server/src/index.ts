@@ -8,7 +8,7 @@ import { runBekri } from './agent.js';
 import { BRIEF_OPENING, BRIEF_TRIGGER } from './brief.js';
 import { buildDashboard } from './dashboard.js';
 import { IMG_DIR } from './imagegen.js';
-import { MOCK, CHAT_MODEL } from './routellm.js';
+import { MOCK, CHAT_MODEL } from './llm.js';
 import { transcribe, STT_MODEL } from './stt.js';
 import {
   BROWSER, DEFAULT_RATE, clampRate, envVoice, isRoutedModel, loadCatalog, preview, synthesize, ttsEnabled, usableVoices, voiceId, warmOpening,
