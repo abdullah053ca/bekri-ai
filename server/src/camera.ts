@@ -1,13 +1,13 @@
 // Kamera cihazları: eski bir iPhone Jarvis'in "gözü" olur.
 // - Canlı görüntü kamera ile izleyici arasında doğrudan WebRTC ile akar; sunucu yalnızca sinyal taşır.
 // - WebRTC kurulamazsa aralıklı kare modu: kamera saniyede 1 JPEG gönderir, sunucu yalnızca SON kareyi bellekte tutar.
-// - kameraya_bak: Jarvis anlık bir kare ister ve RouteLLM görüntü modeline sorar.
+// - kameraya_bak: Jarvis anlık bir kare ister ve BEKRI model gateway görüntü modeline sorar.
 // Gizlilik: hiçbir kare diske ya da loga yazılmaz; kamera çevrimdışı olunca son kare silinir.
 // ACCESS_TOKEN yoksa özelliğin tamamı kapalıdır (uç noktalar 403 döner).
 import 'dotenv/config';
 import express, { type Request, type Response, Router } from 'express';
 import { randomUUID } from 'node:crypto';
-import { routellm, CHAT_MODEL, type ChatResponse } from './routellm.js';
+import { routellm, CHAT_MODEL, type ChatResponse } from './llm.js';
 
 export const CAMERA_ENABLED = !!process.env.ACCESS_TOKEN;
 /** Görüntü anlama modeli (kameraya_bak). npm run models: input_modalities içinde "image" olanlar. */
@@ -230,7 +230,7 @@ export function cameraRouter(): Router {
 
 // ---------------------------------------------------------------- Jarvis kameraya bakar
 
-/** kameraya_bak aracı: anlık kare → RouteLLM görüntü modeli. Çıktı modele gider (veri, talimat değil). */
+/** kameraya_bak aracı: anlık kare → BEKRI model gateway görüntü modeli. Çıktı modele gider (veri, talimat değil). */
 export async function lookAtCamera(kamera: string, soru: string): Promise<object> {
   if (!CAMERA_ENABLED) return { hata: 'Kamera özelliği kapalı (ACCESS_TOKEN tanımlı değil). Bunu söyle.' };
   const all = [...cams.values()];
@@ -270,7 +270,7 @@ export async function lookAtCamera(kamera: string, soru: string): Promise<object
     'Kurallar: Yalnızca karede gerçekten görünen şeyleri söyle. Emin olmadığın bir şey için "net göremiyorum" de. ' +
     'Kişilerin kim olduğunu tahmin etme, isim verme; yalnızca "bir kişi" gibi tarif et. Metin okunuyorsa aynen aktar. Türkçe, en fazla 4 kısa cümle.';
   try {
-    const r = await routellm<ChatResponse>('/chat/completions', {
+    const r = await llmRequest<ChatResponse>('/chat/completions', {
       model: VISION_MODEL,
       messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${frame.buf.toString('base64')}` } }] }],
     });
