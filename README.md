@@ -222,7 +222,7 @@ Eski bir iPhone Bekri'in gözü olur. Görüntüsü bilgisayarda ve tablette can
 
 **Bekri'in bakması:** "Bekri, mutfakta ne var?", "Kahve makinesinin önünde fincan var mı?", "Kapıya bak".
 - Bekri kameradan tek bir anlık kare ister; 5 sn'de gelmezse "kamera yanıt vermedi" der.
-- Kareyi RouteLLM görüntü modeli yorumlar: `VISION_MODEL`, boşsa `gemini-3.8-flash`. `npm run models` çıktısında `input_modalities` içinde `image` olan modeller kullanılabilir.
+- Kareyi Ollama görüntü modeli yorumlar: `VISION_MODEL`, boşsa `gemini-3.8-flash`. `npm run models` çıktısında `input_modalities` içinde `image` olan modeller kullanılabilir.
 - İzleyici ekranlarında panel öne gelir, tarama oynar ve analiz edilen kare 3 sn donar.
 - Bekri yalnızca karede görüneni söyler; emin değilse "net göremiyorum" der, kişileri adıyla tanımlamaz. Kamera kapalıysa "CAM-01 çevrimdışı" der.
 
