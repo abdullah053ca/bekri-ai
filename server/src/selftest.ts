@@ -6,14 +6,18 @@ import { TOOLS } from './tools.js';
 
 const parser = new Parser({ timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
 
-console.log('— RSS kaynakları —');
-for (const f of FEEDS) {
-  try {
-    const feed = await parser.parseURL(f.url);
-    console.log(`✅ ${f.source.padEnd(15)} ${f.category.padEnd(10)} ${feed.items.length} haber`);
-  } catch (e: any) {
-    console.log(`❌ ${f.source.padEnd(15)} ${f.category.padEnd(10)} ${String(e.message).slice(0, 60)}`);
+if (process.env.ENABLE_WEB_FEATURES === '1') {
+  console.log('— RSS kaynakları —');
+  for (const f of FEEDS) {
+    try {
+      const feed = await parser.parseURL(f.url);
+      console.log(`✅ ${f.source.padEnd(15)} ${f.category.padEnd(10)} ${feed.items.length} haber`);
+    } catch (e: any) {
+      console.log(`❌ ${f.source.padEnd(15)} ${f.category.padEnd(10)} ${String(e.message).slice(0, 60)}`);
+    }
   }
+} else {
+  console.log('Web özellikleri kapalı; RSS testleri ağ isteği yapmadan atlandı.');
 }
 
 console.log(`\n— Tool calling (${CHAT_MODEL}) —`);
