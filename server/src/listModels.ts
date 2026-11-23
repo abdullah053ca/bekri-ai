@@ -1,6 +1,6 @@
 // Ollama'de kullanılabilen modelleri kategorize eder ve önerilen .env değerlerini yazar: `npm run models`
 // Kategori, /models'in kendi alanlarından gelir (model_type + input/output_modalities); ad tahmini yok.
-import { API_KEY, routellm } from './llm.js';
+import { llmRequest } from './llm.js';
 import { bestVoice, pitchSpread, rankedVoices, usableVoices } from './tts.js';
 
 
