@@ -1,7 +1,7 @@
 // Kamera cihazları: eski bir iPhone BEKRI'nin "gözü" olur.
 // - Canlı görüntü kamera ile izleyici arasında doğrudan WebRTC ile akar; sunucu yalnızca sinyal taşır.
 // - WebRTC kurulamazsa aralıklı kare modu: kamera saniyede 1 JPEG gönderir, sunucu yalnızca SON kareyi bellekte tutar.
-// - kameraya_bak: Jarvis anlık bir kare ister ve BEKRI model gateway görüntü modeline sorar.
+// - kameraya_bak: BEKRI anlık bir kare ister ve BEKRI model gateway görüntü modeline sorar.
 // Gizlilik: hiçbir kare diske ya da loga yazılmaz; kamera çevrimdışı olunca son kare silinir.
 // ACCESS_TOKEN yoksa özelliğin tamamı kapalıdır (uç noktalar 403 döner).
 import 'dotenv/config';
