@@ -1,12 +1,17 @@
-// Ses tanıma (STT) BEKRI model gateway'den: tarayıcının Web Speech API'si iPhone'da güvenilir değil, yalnızca yedek.
-// Ölçüm (5 Ekim 2026): /audio/transcriptions BEKRI model gateway'de yok (404). Ses girdili sohbet modelleri arasında
-// gemini-2.5-flash 2,7 sn'de birebir doğru yazdı; gemini-2.5-pro 9 sn; gpt-audio-1.5 metni bozdu.
-import { API_KEY, BASE_URL, llmRequest, type ChatResponse } from './llm.js';
+// Fully local speech-to-text using whisper.cpp. Audio is written to a temporary file
+// and deleted after transcription; no recording is sent to a hosted API.
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
-export const STT_MODEL = process.env.STT_MODEL || 'gemini-2.5-flash';
-let transcriptionsEndpoint: boolean | null = null; // ilk denemeden sonra hafızada
+const execFileAsync = promisify(execFile);
+export const STT_MODEL = process.env.STT_MODEL || 'whisper.cpp';
+const WHISPER_BIN = process.env.WHISPER_CPP_PATH || 'whisper-cli';
+const WHISPER_MODEL = process.env.WHISPER_MODEL_PATH || '';
+const FFMPEG_BIN = process.env.FFMPEG_PATH || 'ffmpeg';
 
-/** MediaRecorder MIME türü → BEKRI model gateway input_audio biçimi */
 export function audioFormat(mime: string): string | null {
   const m = mime.toLowerCase();
   if (m.includes('webm')) return 'webm';
@@ -21,39 +26,36 @@ export async function transcribe(audio: Buffer, mime: string): Promise<{ text: s
   const t0 = Date.now();
   const format = audioFormat(mime);
   if (!format) throw new Error(`desteklenmeyen ses biçimi: ${mime}`);
-
-  if (transcriptionsEndpoint !== false) {
-    const form = new FormData();
-    form.append('file', new Blob([new Uint8Array(audio)], { type: mime }), `kayit.${format}`);
-    form.append('model', STT_MODEL);
-    form.append('prompt', 'The audio may contain Arabic (Syrian dialect or Modern Standard Arabic), Turkish, or a natural mix of both. Transcribe the spoken words exactly in the language used.');
-    const r = await fetch(`${BASE_URL}/audio/transcriptions`, { method: 'POST', headers: { Authorization: `Bearer ${API_KEY}` }, body: form }).catch(() => null);
-    if (r?.ok) {
-      transcriptionsEndpoint = true;
-      const j: any = await r.json();
-      return { text: String(j.text ?? '').trim(), model: STT_MODEL, ms: Date.now() - t0 };
-    }
-    transcriptionsEndpoint = false;
+  if (!WHISPER_MODEL) {
+    throw new Error('Yerel ses tanıma hazır değil. WHISPER_MODEL_PATH değişkenine indirdiğiniz whisper.cpp model dosyasının yolunu yazın.');
   }
 
-  const resp = await llmRequest<ChatResponse>('/chat/completions', {
-    model: STT_MODEL,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          { type: 'input_audio', input_audio: { data: audio.toString('base64'), format } },
-          { type: 'text', text: 'Bu ses kaydındaki konuşmayı Arapça (Suriye lehçesi veya فصحى), Türkçe ya da ikisinin karışımı olabilir; duyulduğu dilde kelimesi kelimesine yaz. Sadece duyduğun metni yaz; açıklama veya başlık ekleme. Konuşma yoksa boş bırak.' },
-        ],
-      },
-    ],
-  });
-  const raw = String(resp.choices?.[0]?.message?.content ?? '').trim();
-  // Model bazen {"text": "..."} biçiminde dönüyor
-  let text = (/^\{\s*"(?:text|transcript(?:ion)?)"\s*:\s*"([\s\S]*)"\s*\}$/.exec(raw)?.[1] ?? raw).replace(/^["“]|["”]$/g, '').trim();
-  // Sessiz kayıtta model bazen kendi talimatını geri döndürüyor ("Türkçeyi kelimesi kelimesine yazıya dök"):
-  // bu, kullanıcının sözü değil. Boş say (istemci "Sizi duyamadım" der).
-  const f = text.toLocaleLowerCase('tr');
-  if (/kelimesi kelimesine|yazıya dök|duyduğun metni|konuşma yok|ses yok|transcribe the spoken|^\W*$/.test(f)) text = '';
-  return { text, model: resp.model ?? STT_MODEL, ms: Date.now() - t0 };
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bekri-stt-'));
+  const source = path.join(dir, `recording.${format}`);
+  const wav = path.join(dir, 'recording.wav');
+  try {
+    await fs.writeFile(source, audio);
+    let input = source;
+    if (format !== 'wav') {
+      try {
+        await execFileAsync(FFMPEG_BIN, ['-y', '-i', source, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', wav], { timeout: 60_000, maxBuffer: 4 * 1024 * 1024 });
+        input = wav;
+      } catch {
+        throw new Error('Bu ses biçimini yerelde dönüştürmek için FFmpeg kurup FFMPEG_PATH ayarlayın.');
+      }
+    }
+
+    const { stdout } = await execFileAsync(
+      WHISPER_BIN,
+      ['-m', WHISPER_MODEL, '-f', input, '-l', 'auto', '-nt', '-np'],
+      { timeout: 120_000, maxBuffer: 8 * 1024 * 1024 },
+    );
+    const text = String(stdout || '').trim();
+    return { text, model: STT_MODEL, ms: Date.now() - t0 };
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') throw new Error(`whisper.cpp çalıştırıcısı bulunamadı: ${WHISPER_BIN}. WHISPER_CPP_PATH ayarlayın.`);
+    throw error;
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true }).catch(() => {});
+  }
 }
