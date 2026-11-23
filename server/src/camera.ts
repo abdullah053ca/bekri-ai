@@ -3,7 +3,7 @@
 // - WebRTC kurulamazsa aralıklı kare modu: kamera saniyede 1 JPEG gönderir, sunucu yalnızca SON kareyi bellekte tutar.
 // - kameraya_bak: BEKRI anlık bir kare ister ve BEKRI model gateway görüntü modeline sorar.
 // Gizlilik: hiçbir kare diske ya da loga yazılmaz; kamera çevrimdışı olunca son kare silinir.
-// ACCESS_TOKEN yoksa özelliğin tamamı kapalıdır (uç noktalar 403 döner).
+// Kamera yalnızca CAMERA_ENABLED=1 ile açılır; sunucu loopback'e bağlı kalır.
 import 'dotenv/config';
 import express, { type Request, type Response, Router } from 'express';
 import { randomUUID } from 'node:crypto';
