@@ -8,7 +8,7 @@ Arabic-first personal assistant fork. Bekri understands Syrian Arabic, Modern St
 
 # BEKRI AI — بكري
 
-Bilgisayarda, tablette ve telefonda çalışan **tek** bir kişisel asistan. Beyni [Abacus.AI RouteLLM API](https://abacus.ai): her soruyu otomatik olarak en uygun modele yönlendirir.
+Bilgisayarda çalışan, öncelikle yerel ve özel kullanıma yönelik kişisel asistan. Varsayılan yapay zekâ motoru bilgisayarındaki Ollama'dır; BEKRI sohbetlerini varsayılan olarak bir bulut yapay zekâ servisine göndermez.
 
 - 🗣️ Sesli konuşur, sesle dinler (bas-konuş)
 - 📰 "Bekri, aydınlat beni" → birden fazla haber kaynağını tarar, sahne sahne anlatır
@@ -19,19 +19,13 @@ Bilgisayarda, tablette ve telefonda çalışan **tek** bir kişisel asistan. Bey
 
 ## Kurulum
 
-Gerekenler: Node.js 20+
+Gerekenler: Node.js 20+ ve [Ollama](https://ollama.com/).
 
 ```bash
 npm run setup          # bağımlılıkları kurar, server/.env dosyasını oluşturur
 ```
 
-`server/.env` dosyasını aç ve en az şunu doldur:
-
-```
-ABACUS_API_KEY=...     # apps.abacus.ai → LLM APIs → API anahtarı oluştur
-```
-
-Anahtar boşsa uygulama **demo modunda** çalışır (kurgusal haberlerle), arayüzü denemek için yeterlidir.
+`server/.env` dosyasında varsayılan Ollama ayarları hazırdır. Ollama yerel bilgisayarında çalışırken `http://127.0.0.1:11434` adresini kullanır; API anahtarı gerekmez. İstersen `OLLAMA_MODEL` ile modeli değiştirebilirsin.
 
 ## Çalıştırma
 
@@ -42,7 +36,7 @@ npm run dev            # http://localhost:5173
 İlk kontrol (önerilir):
 
 ```bash
-npm run test           # RSS kaynaklarını ve RouteLLM tool calling'i test eder
+npm run test           # RSS kaynaklarını ve BEKRI model gateway tool calling'i test eder
 npm run models         # RouteLLM'de kullanılabilen modelleri listeler (ses modelleri dahil)
 ```
 
@@ -61,11 +55,11 @@ cloudflared tunnel --url http://localhost:8787
 
 Her cihaz kendini otomatik tanır; yanlışsa *☰ → Ayarlar → Bu cihaz* kısmından değiştir.
 
-## Bekri router'ı nasıl kurulur (birden fazla beyin)
+## Yerel model yapılandırması
 
-`route-llm` her isteği kendisi yönlendirir. Bekri'e özel bir yönlendirici (Abacus **Custom Router**) kurarsan her istek türü senin seçtiğin modele gider ve router'ın adı API'de model adı olarak kullanılır.
+BEKRI varsayılan olarak Ollama'nın yerel OpenAI-uyumlu API'sine bağlanır. Sohbet ve görsel modelini `.env` içinden seçebilirsin. Yerel model kullanmak için bulut hesabı veya API anahtarı gerekmez.
 
-1. **apps.abacus.ai → LLM APIs → New Custom Router**
+1. Ollama'yı başlat ve kullanmak istediğin modeli indir.
 2. Önerilen eşleme (5 Ekim 2026 ölçümlerine göre):
 
    | İstek türü | Model | Neden |
@@ -75,13 +69,13 @@ Her cihaz kendini otomatik tanır; yanlışsa *☰ → Ayarlar → Bu cihaz* kı
    | Görsel/fotoğraf analizi | görsel girdi destekli model (ör. `gemini-3.8-flash`) | Kamera sorusunu `route-llm` de buna yönlendirdi. |
    | Diğer her şey | `route-llm` | |
 
-3. Router'ın adını `server/.env` içine yaz ve sunucuyu yeniden başlat:
+3. Sunucuyu yeniden başlat.
 
    ```
    CHAT_MODEL=bekri-router
    ```
 
-4. Arayüzün sağ üstündeki **BEYİN** rozeti her cevapta `router → gerçekten çalışan alt model` gösterir (ör. `bekri-router → gemini-2.5-flash`). Sunucu logu da her cevapta `[beyin] istenen: … → çalışan: …` yazar.
+4. Ollama modeli yerel bilgisayarda çalışır; internet bağlantısı gerekmez.
 
 Notlar:
 - Router TTS için **kullanılmaz**: sesin her cevapta aynı kalması için TTS sabit bir model + sabit bir ses kimliği ister; `TTS_MODEL` yönlendirmeli bir model olursa sunucu açılışta uyarır ve reddeder.
@@ -341,7 +335,7 @@ Bu rehber, daha önce hiç kod çalıştırmamış biri için hazırlandı. Adı
 > **Kısaca ne yapacağız?**
 > 1. Bilgisayara Node.js kuracağız (Bekri'i çalıştıran program).
 > 2. Bekri'i GitHub'dan indireceğiz.
-> 3. Abacus AI'dan bir API anahtarı alacağız (Bekri'in beyni).
+> 3. Ollama AI'dan bir API anahtarı alacağız (Bekri'in beyni).
 > 4. Tek bir komutla Bekri'i başlatacağız.
 
 ---
