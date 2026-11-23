@@ -5,7 +5,7 @@ function safeGet(k: string) { try { return localStorage.getItem(k); } catch { re
 function safeSet(k: string, v: string | null) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* yok say */ } }
 
 /**
- * Jarvis'in sesi.
+ * Bekri's Arabic voice.
  * - Sunucu TTS'i açıksa RouteLLM ses modeli çalınır, seviye Web Audio analizörüyle ölçülür.
  * - Ses cevaba sabitlenir (reply.voice). Bir sahnenin sunucu sesi alınamazsa bir kez yeniden denenir; yine olmazsa
  *   O CEVABIN KALANI tarayıcı sesine geçer. Önceden tek tek sahneler tarayıcı sesine düşebiliyor, sesler karışıyordu.
@@ -49,8 +49,8 @@ class VoiceEngine {
   beginReply() { this.replyBrowser = !this.serverTts; }
 
   // ---- Tarayıcı sesi (çevrimdışı yedek): her cihazın kendi sesleri var, seçim cihazda saklanır ----
-  get browserVoiceName() { return safeGet('jarvis.browserVoice'); }
-  set browserVoiceName(v: string | null) { safeSet('jarvis.browserVoice', v); }
+  get browserVoiceName() { return safeGet('bekri.browserVoice'); }
+  set browserVoiceName(v: string | null) { safeSet('bekri.browserVoice', v); }
   browserVoices(): SpeechSynthesisVoice[] {
     if (!('speechSynthesis' in window)) return [];
     return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('ar'));
