@@ -2,9 +2,8 @@
 import type { HandLandmarker } from '@mediapipe/tasks-vision';
 import type { P } from './gestures';
 
-/** Model önce yerelden (npm run el-modeli ile indirilmişse), yoksa Google'ın sunucusundan */
+/** Hand landmark model must be present locally; never download it silently from a third party. */
 const LOCAL_MODEL = '/models/hand_landmarker.task';
-const REMOTE_MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
 /** wasm dosyaları vite.config.ts'teki eklentiyle node_modules'tan sunulur */
 const WASM = '/mediapipe/wasm';
 
@@ -49,7 +48,7 @@ async function modelPath(): Promise<string> {
     // Vite bilinmeyen yolda index.html döndürür: gerçekten model mi diye bak
     if (r.ok && !type.includes('text/html')) return LOCAL_MODEL;
   } catch { /* yerel yok */ }
-  return REMOTE_MODEL;
+  throw new Error('Yerel el takip modeli bulunamadı. Kurulum sırasında npm run el-modeli çalıştırın.');
 }
 
 export async function loadLandmarker(onStatus?: (s: string) => void): Promise<{ lm: HandLandmarker; delegate: 'GPU' | 'CPU' }> {
