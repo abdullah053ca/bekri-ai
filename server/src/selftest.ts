@@ -1,4 +1,4 @@
-// `npm run test`: 1) RSS kaynaklarını, 2) RouteLLM tool calling'i kontrol eder.
+// `npm run test`: 1) RSS kaynaklarını, 2) yapılandırılmış yerel model bağlantısını kontrol eder.
 import Parser from 'rss-parser';
 import { FEEDS } from './news.js';
 import { API_KEY, CHAT_MODEL, routellm, type ChatResponse } from './routellm.js';
@@ -17,7 +17,7 @@ for (const f of FEEDS) {
 }
 
 if (!API_KEY) {
-  console.log('\nABACUS_API_KEY yok; tool calling testi atlandı.');
+  console.log('\nModel gateway API anahtarı gerektirmiyor; yerel Ollama bağlantısı test ediliyor.');
   process.exit(0);
 }
 
