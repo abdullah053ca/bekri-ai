@@ -10,6 +10,7 @@ export const knownImageUrls = new Set<string>();
 const stockCache = new Map<string, Photo | null>();
 
 async function searchStock(query: string): Promise<Photo | null> {
+  if (process.env.ENABLE_WEB_FEATURES !== '1') return null;
   if (stockCache.has(query)) return stockCache.get(query)!;
   let photo: Photo | null = null;
   try {
