@@ -223,7 +223,7 @@ const SYMBOLIC = new Set(['kart', 'adimlar', 'liste']);
 /** Falın sunucudan eklenen son sahnesi (sesi önceden hazır) */
 const FAL_FINAL = { __falSon: true, ses: FAL_SON, gorsel: { tip: 'ikon', ikon: 'users', baslik: '100 bin takipçi', alt: 'Falınızda görünen' } };
 
-export async function runJarvis(opts: RunOptions): Promise<JarvisReply> {
+export async function runBekri(opts: RunOptions): Promise<JarvisReply> {
   const { text, device, prevDevice, history, photoMode, progress } = opts;
   const t0 = Date.now();
   const since = () => `${Date.now() - t0} ms`;
