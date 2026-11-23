@@ -93,7 +93,9 @@ export function onClientClosed(clientId: string) {
 }
 
 export function iceServers() {
-  const list: { urls: string | string[]; username?: string; credential?: string }[] = [{ urls: 'stun:stun.l.google.com:19302' }];
+  const list: { urls: string | string[]; username?: string; credential?: string }[] = [];
+  // STUN is opt-in: by default do not contact third-party discovery servers.
+  if (process.env.ENABLE_STUN === '1') list.push({ urls: 'stun:stun.l.google.com:19302' });
   if (process.env.TURN_URL) list.push({ urls: process.env.TURN_URL, username: process.env.TURN_USERNAME, credential: process.env.TURN_CREDENTIAL });
   return list;
 }
@@ -228,7 +230,7 @@ export function cameraRouter(): Router {
   return r;
 }
 
-// ---------------------------------------------------------------- Jarvis kameraya bakar
+// ---------------------------------------------------------------- BEKRI kameraya bakar
 
 /** kameraya_bak aracı: anlık kare → BEKRI model gateway görüntü modeli. Çıktı modele gider (veri, talimat değil). */
 export async function lookAtCamera(kamera: string, soru: string): Promise<object> {
