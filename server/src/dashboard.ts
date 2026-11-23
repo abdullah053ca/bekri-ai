@@ -1,6 +1,6 @@
 // Bekleme ekranındaki sabah panosu: hava (Open-Meteo), döviz (TCMB), haber istatistiği, sistem durumu.
 // Kural: uydurma veri yok. Bir kaynak çökerse yalnızca o alan null döner; panel "veri alınamadı" der.
-import { API_KEY, BASE_URL, MOCK } from './routellm.js';
+import { API_KEY, BASE_URL, MOCK } from './llm.js';
 import { SOURCE_COUNT, newsSnapshot } from './news.js';
 import type { Device } from './types.js';
 
@@ -284,7 +284,7 @@ async function getNewsStats(): Promise<NewsStats> {
 
 // ---------- Sistem: RouteLLM gecikmesi ----------
 
-const pingRouteLLM = cached<{ ms: number; ok: boolean }>(60_000, 60_000, 'RouteLLM gecikmesi', async () => {
+const pingLocalModel = cached<{ ms: number; ok: boolean }>(60_000, 60_000, 'yerel model gecikmesi', async () => {
   if (!API_KEY) return { ms: 0, ok: false };
   const t0 = performance.now();
   const r = await fetch(`${BASE_URL}/models`, { headers: { Authorization: `Bearer ${API_KEY}` }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
@@ -325,9 +325,16 @@ function demoDashboard(devices: Device[]): Dashboard {
   };
 }
 
+export const WEB_FEATURES_ENABLED = process.env.ENABLE_WEB_FEATURES === '1';
+
 export async function buildDashboard(opts: { devices: Device[]; model: string }): Promise<Dashboard> {
   if (MOCK) return demoDashboard(opts.devices);
-  const [weather, markets, news, ping] = await Promise.all([getWeather(), getMarkets(), getNewsStats(), pingRouteLLM()]);
+  const [weather, markets, news, ping] = await Promise.all([
+    WEB_FEATURES_ENABLED ? getWeather() : Promise.resolve(null),
+    WEB_FEATURES_ENABLED ? getMarkets() : Promise.resolve(null),
+    WEB_FEATURES_ENABLED ? getNewsStats() : Promise.resolve({ total: 0, sources_ok: 0, sources_total: SOURCE_COUNT, by_category: [], headlines: [], sources: [] }),
+    pingLocalModel(),
+  ]);
   return {
     demo: false,
     updated_at: new Date().toISOString(),
