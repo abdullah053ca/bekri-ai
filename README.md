@@ -23,6 +23,7 @@ Gerekenler: Node.js 20+ ve [Ollama](https://ollama.com/).
 
 ```bash
 npm run setup          # bağımlılıkları kurar, server/.env dosyasını oluşturur
+npm run el-modeli       # kamera el/yüz modellerini yerel web/public/models klasörüne indirir
 ```
 
 `server/.env` dosyasında varsayılan Ollama ayarları hazırdır. Ollama yerel bilgisayarında çalışırken `http://127.0.0.1:11434` adresini kullanır; API anahtarı gerekmez. İstersen `OLLAMA_MODEL` ile modeli değiştirebilirsin.
@@ -39,6 +40,12 @@ npm run dev            # http://localhost:5173
 npm run test           # RSS kaynaklarını ve BEKRI model gateway tool calling'i test eder
 npm run models         # yerel Ollama modellerini listeler
 ```
+
+## Gizlilik ve çevrimdışı çalışma
+
+Varsayılan kurulum yalnızca `127.0.0.1` üzerinde dinler. Yerel Ollama kullanır; haber, hava durumu, döviz, Wikipedia ve YouTube istekleri `ENABLE_WEB_FEATURES=1` verilmedikçe kapalıdır. Kamera için halka açık STUN sunucusu kullanılmaz; uzak ağ bağlantısı gerekiyorsa `ENABLE_STUN=1` seçeneğini bilinçli olarak açın. El/yüz modelleri kurulum komutuyla bir kez yerel diske indirilir; uygulama sonrasında bunları uzaktan indirmeye çalışmaz.
+
+Ses tanıma için whisper.cpp ve bir model dosyası ayrıca kurulur. `WHISPER_MODEL_PATH` boşsa ses tanıma çalışmaz; ses kaydı hiçbir bulut servisine gönderilmez.
 
 ## Telefon ve tablette kullanmak
 
