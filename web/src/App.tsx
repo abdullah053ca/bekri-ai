@@ -27,7 +27,7 @@ import { shrinkImage } from './lib/image';
 import { recorderSupported, startRecording } from './lib/recorder';
 import { Markdown } from './lib/markdown';
 import { createRecognizer, speechRecognitionSupported, voice } from './lib/speech';
-import { DEVICE_LABEL, type CoreState, type CurrencyCode, type Dashboard, type Device, type GreetingPeriod, type Health, type JarvisReply, type Sahne, type ServerEvent, type StoredMessage, type UiMode, type VoiceOption, type VoiceSel, type WakeConfig } from './lib/types';
+import { DEVICE_LABEL, type CoreState, type CurrencyCode, type Dashboard, type Device, type GreetingPeriod, type Health, type BekriReply, type Sahne, type ServerEvent, type StoredMessage, type UiMode, type VoiceOption, type VoiceSel, type WakeConfig } from './lib/types';
 import { atServerTime, clockInfo, keepAwake, listenForCommand, preciseTimeout, startClockSync, syncClock, type CommandListen } from './lib/wake';
 
 type Highlight = CurrencyCode | 'weather';
@@ -47,11 +47,11 @@ function highlightsFor(text: string): Highlight[] {
 const SUGGESTIONS = ['بكري، أعطني موجز الأخبار', 'تابع'];
 
 /** Akışla gelen cevap: sahneler geldikçe dolar, oynatıcı bir sonraki sahneyi bekler. */
-interface Live { id: string; scenes: Sahne[]; voice?: VoiceSel; ended: boolean; wake: (() => void) | null; base: JarvisReply }
+interface Live { id: string; scenes: Sahne[]; voice?: VoiceSel; ended: boolean; wake: (() => void) | null; base: BekriReply }
 const wakeLive = (l: Live) => { const w = l.wake; l.wake = null; w?.(); };
 const waitScene = (l: Live, i: number) => new Promise<void>(res => { if (l.scenes[i] || l.ended) res(); else l.wake = res; });
 /** Rozet: router → gerçekten çalışan alt model */
-const brainLabel = (r: JarvisReply) => (r.router && r.model && r.router !== r.model ? `${r.router} → ${r.model}` : r.model);
+const brainLabel = (r: BekriReply) => (r.router && r.model && r.router !== r.model ? `${r.router} → ${r.model}` : r.model);
 const voiceGroup = (v: VoiceOption) => v.label.split(' · ').slice(1).join(' · ') || v.model;
 const voiceTone = (f0: number | null) => (f0 === null ? '' : f0 < 110 ? 'عميق' : f0 < 160 ? 'متوسط' : 'حادّ');
 
@@ -68,12 +68,12 @@ const EL_CLOSE = /(?:\b(el kontrol[a-zçğıöşü]*|büyü modu[a-zçğıöşü
 const KITAPLIK_DEMO = new URLSearchParams(location.search).get('kitaplik') === '1';
 /** "بكري، امسح مكتبتي" / "kitaplığı tarar mısın" / "rafları tara" (El Kontrolü kamerasıyla) */
 const KITAPLIK_TARA = /(?:(?:kitapl[ıi]k|kitapl[ıi][gğ][ıi](m[ıi])?|raflar[ıi](m[ıi])?)\s.*?\btar(a|ar|at)|(?:المكتبة|مكتبتي|الرفوف).*(?:امسح|افحص|صوّر|اقرأ)|(?:امسح|افحص|صوّر|اقرأ).*(?:المكتبة|مكتبتي|الرفوف))/i;
-/** Kitap açıkken: "Jarvis, bunu özetle", "kitabı özetle", "özetini oku" */
-/** Kitap açıkken: "Jarvis, not al: …", "buna not ekle …", "alıntı ekle: …" → o kitaba eklenir (modele gitmez) */
+/** Kitap açıkken: "BEKRI, bunu özetle", "kitabı özetle", "özetini oku" */
+/** Kitap açıkken: "BEKRI, not al: …", "buna not ekle …", "alıntı ekle: …" → o kitaba eklenir (modele gitmez) */
 const KITABA_NOT = /^\s*(?:(?:jarvis|bekri|بكري)[,،\s]+)?(bunu\s+|buna\s+|bu kitaba\s+|kitaba\s+|(?:هذا\s+)?(?:الكتاب\s+)?)?(not al|not ekle|notlara ekle|alıntı ekle|alıntı al|alıntılara ekle|أضف ملاحظة|سجّل ملاحظة|أضف اقتباساً|سجّل اقتباساً)\s*[:,.،\-–]?\s*(.+)$/i;
-/** Kitap açıkken: "Jarvis, bu kitabın adı Davranış" → açık kitap adlandırılır, Jarvis sayfaları dolar */
+/** Kitap açıkken: "BEKRI, bu kitabın adı Davranış" → açık kitap adlandırılır, BEKRI sayfaları dolar */
 const KITABIN_ADI = /(^|\s)(?:(?:bekri|بكري)[,،\s]+)?((?:bu\s+)?kitab[ıi]n\s+ad[ıi]|(?:اسم\s+هذا\s+الكتاب)|(?:اسم\s+الكتاب))(?:\s*[:,،]\s*|\s+)["“']?(?!(?:ne|nedir|neydi)\s*\??\s*$)([^?]+?)["”']?[.!؟]?\s*$/i;
-/** El Kontrolü açıkken: "Jarvis, Mars yap", "Jüpiter'e çevir", "gezegeni Dünya yap", "Güneş olsun" */
+/** El Kontrolü açıkken: "BEKRI, Mars yap", "Jüpiter'e çevir", "gezegeni Dünya yap", "Güneş olsun" */
 const GEZEGEN_KOMUT = /(?:(?:^|\s)(dünya|mars|jüpiter|jupiter|satürn|saturn|ay|güneş|الأرض|المريخ|المشتري|زحل|القمر|الشمس)(?:['’]?(?:y?[aeıiuü]|[dt][ae]|n[ıiuü]n))?\s+(?:yap|çevir|olsun|getir|dönüştür|oluştur|اجعل|حوّل|خلي|ليكون)|(?:^|\s)(?:اجعل|حوّل|خلي|ليكون)\s+(?:الكوكب\s+)?(?:إلى\s+)?(الأرض|المريخ|المشتري|زحل|القمر|الشمس)(?:$|\s))/i;
 const GEZEGEN_ADI: Record<string, GezegenTur> = { dünya: 'dunya', mars: 'mars', jüpiter: 'jupiter', jupiter: 'jupiter', satürn: 'saturn', saturn: 'saturn', ay: 'ay', güneş: 'gunes', 'الأرض': 'dunya', 'المريخ': 'mars', 'المشتري': 'jupiter', 'زحل': 'saturn', 'القمر': 'ay', 'الشمس': 'gunes' };
 const BUNU_OZETLE = /(^|\s)(bunu|kitab[ıi]|bu kitab[ıi])\s+(özetle|özetler misin|anlat|oku)(?=$|[\s,.!?])|(^|\s)özetini\s+(oku|söyle)|(?:لخّص|لخص|اعطني ملخص|أعطني ملخص|اقرأ الملخص).*(?:الكتاب|هذا|هالكتاب)?/i;
@@ -107,7 +107,7 @@ export default function App() {
   const [photoMode, setMode] = useState<'haber' | 'video'>('haber');
   const [core, setCore] = useState<CoreState>('idle');
   const [telemetry, setTelemetry] = useState<string[]>([]);
-  const [reply, setReply] = useState<JarvisReply | null>(null);
+  const [reply, setReply] = useState<BekriReply | null>(null);
   const [sceneIdx, setSceneIdx] = useState(-1);
   const [model, setModel] = useState<string | null>(null);
   const [input, setInput] = useState('');
@@ -137,7 +137,7 @@ export default function App() {
   const [dash, setDash] = useState<Dashboard | null>(null);
   const [dashTried, setDashTried] = useState(false);
   const [hl, setHl] = useState<Highlight[]>(NO_HIGHLIGHT);
-  // Jarvis içinde açılan YouTube videosu
+  // BEKRI içinde açılan YouTube videosu
   const [video, setVideo] = useState<VideoInfo | null>(null);
   const videoRef = useRef(video);
   videoRef.current = video;
@@ -248,7 +248,7 @@ export default function App() {
       const minMs = sc.gorsel.tip !== 'yok' ? 1200 : 0;
       await Promise.all([voice.speak(sc.ses, l.voice, i + 1, n, ctx(i)), new Promise(r => setTimeout(r, minMs))]);
       if (playToken.current !== my) return;
-      // Video sahnesi: cümleden sonra video Jarvis'in içinde açılır, cevap burada biter (sesler çakışmasın)
+      // Video sahnesi: cümleden sonra video BEKRI'in içinde açılır, cevap burada biter (sesler çakışmasın)
       if (sc.gorsel.tip === 'video') {
         setVideo({ id: sc.gorsel.youtube_id, title: sc.gorsel.baslik, channel: sc.gorsel.kanal, external: !!sc.gorsel.harici, vertical: !!sc.gorsel.dikey });
         break;
@@ -262,7 +262,7 @@ export default function App() {
   }, []);
 
   /** Tamamlanmış bir cevabı (geçmişten) baştan oynatır. */
-  const play = useCallback((r: JarvisReply) => {
+  const play = useCallback((r: BekriReply) => {
     const l: Live = { id: r.id, scenes: r.sahneler.slice(), voice: r.voice, ended: true, wake: null, base: r };
     liveRef.current = l;
     setReply(r);
@@ -420,7 +420,7 @@ export default function App() {
     setHeardLive('');
     console.info(`[uyanış] komut ${r.matched ? 'eşleşti' : 'gelmedi'} · ${r.via ?? '—'} · ${r.ms} ms · "${r.heard}"`);
     metric('uyanış komutu', r.ms, `${r.matched ? 'eşleşti' : 'gelmedi'} · yakalayan: ${r.via ?? '—'} · "${r.heard.slice(0, 40)}"`);
-    if (r.matched) postWake(`çift alkış + ses (${r.via === 'webspeech' ? 'Web Speech' : 'RouteLLM'})`, r.heard);
+    if (r.matched) postWake(`çift alkış + ses (${r.via === 'webspeech' ? 'Web Speech' : 'BEKRI local'})`, r.heard);
     else postAttention(device, true, r.heard);
   };
 
@@ -473,7 +473,7 @@ export default function App() {
           if (!mine) break;
           let l = liveRef.current;
           if (!l || l.id !== e.replyId) {
-            const base: JarvisReply = { id: e.replyId, sahneler: [], detay: '', model: null, tool_log: [], device, created_at: new Date().toISOString(), voice: e.voice };
+            const base: BekriReply = { id: e.replyId, sahneler: [], detay: '', model: null, tool_log: [], device, created_at: new Date().toISOString(), voice: e.voice };
             l = { id: e.replyId, scenes: [], voice: e.voice, ended: false, wake: null, base };
             liveRef.current = l;
             l.scenes[e.index] = e.sahne;
@@ -617,7 +617,7 @@ export default function App() {
       setPlanetCmd(c => ({ tur: GEZEGEN_ADI[(gm[1] ?? gm[2]).toLocaleLowerCase('tr')], n: (c?.n ?? 0) + 1 }));
       return;
     }
-    // Açık kitabı adlandır (adı okunamamış sırtlar için): ad yazılır, sunucu kapağı ve Jarvis sayfalarını doldurur
+    // Açık kitabı adlandır (adı okunamamış sırtlar için): ad yazılır, sunucu kapağı ve BEKRI sayfalarını doldurur
     const an = !image && openBook.current ? KITABIN_ADI.exec(t) : null;
     if (an && openBook.current) {
       voice.unlock(); setInput(''); setInterim('');
@@ -676,7 +676,7 @@ export default function App() {
     rec.start();
   };
 
-  // Asıl yol: mikrofon kaydı → RouteLLM ile yazıya çevirme. Konuşma bitince (sessizlik) kendiliğinden durur.
+  // Asıl yol: mikrofon kaydı → BEKRI local ile yazıya çevirme. Konuşma bitince (sessizlik) kendiliğinden durur.
   const toggleMic = async () => {
     voice.unlock();
     if (core === 'listening') { recRef.current?.stop(); return; }
@@ -730,7 +730,7 @@ export default function App() {
   };
 
   /** Yüz kilidi: seçili sesle tek cümle. Sesi sunucuda önceden hazır (server/src/scripted.ts YUZ_KILIDI ile aynı metin).
-   *  En fazla dakikada bir; Jarvis başka bir şey anlatıyorsa araya girmez. */
+   *  En fazla dakikada bir; BEKRI başka bir şey anlatıyorsa araya girmez. */
   const faceGreetAt = useRef(0);
   const onFaceLock = () => {
     const now = Date.now();
@@ -762,7 +762,7 @@ export default function App() {
   };
   const toggleHands = () => { voice.unlock(); setHands(h => (h ? null : 'kamera')); };
 
-  // Kamera / galeri: Jarvis'in "gözü"
+  // Kamera / galeri: BEKRI'in "gözü"
   const onPhoto = async (f: File | undefined) => {
     if (!f) return;
     try {
@@ -843,7 +843,7 @@ export default function App() {
     return () => { window.removeEventListener('pointerdown', onGesture, true); window.removeEventListener('keydown', onGesture, true); };
   }, []);
 
-  // Boşta kalınca uyku (yalnızca bu cihaz). Jarvis konuşurken/düşünürken, çekmece ya da kalibrasyon açıkken saymaz.
+  // Boşta kalınca uyku (yalnızca bu cihaz). BEKRI konuşurken/düşünürken, çekmece ya da kalibrasyon açıkken saymaz.
   useEffect(() => {
     const id = setInterval(() => {
       const mins = wakeRef.current?.idleMinutes ?? 0;
@@ -874,7 +874,7 @@ export default function App() {
     setMicError(null);
     let alive = true;
     let quietUntil = 0;
-    // Jarvis konuşurken, komut dinlenirken ve ses bittikten sonraki 600 ms boyunca analiz yok (kendi sesi tetiklemesin)
+    // BEKRI konuşurken, komut dinlenirken ve ses bittikten sonraki 600 ms boyunca analiz yok (kendi sesi tetiklemesin)
     const paused = () => {
       if (voice.isPlaying()) { quietUntil = performance.now() + 600; return true; }
       return !!commandRef.current || performance.now() < quietUntil || (wstateRef.current === 'attention' && !calibRef.current);
@@ -903,7 +903,7 @@ export default function App() {
     d.rhythm = wake.rhythmOn ? wake.rhythm : null;
   }, [wake]);
 
-  // ---- Yalnızca "uyan Jarvis" modu: uykudayken döngüde dinle (konuşma duyulmazsa istek gitmez) ----
+  // ---- Yalnızca "uyan BEKRI" modu: uykudayken döngüde dinle (konuşma duyulmazsa istek gitmez) ----
   const voiceLoop = !!wake && wake.enabled && wake.mode === 'voice' && device === wake.listener && wstate === 'sleep';
   useEffect(() => {
     if (!voiceLoop) return;
@@ -925,7 +925,7 @@ export default function App() {
         commandRef.current = null;
         if (!alive) break;
         if (r.heard) console.info(`[uyanış] duyulan: "${r.heard}" · ${r.matched ? 'eşleşti' : 'eşleşmedi'}`);
-        if (r.matched) { postWake(`ses (${r.via === 'webspeech' ? 'Web Speech' : 'RouteLLM'})`, r.heard); break; }
+        if (r.matched) { postWake(`ses (${r.via === 'webspeech' ? 'Web Speech' : 'BEKRI local'})`, r.heard); break; }
         await new Promise(res => setTimeout(res, 250));
       }
     })();
