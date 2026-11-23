@@ -16,11 +16,6 @@ for (const f of FEEDS) {
   }
 }
 
-if (!API_KEY) {
-  console.log('\nModel gateway API anahtarı gerektirmiyor; yerel Ollama bağlantısı test ediliyor.');
-  process.exit(0);
-}
-
 console.log(`\n— Tool calling (${CHAT_MODEL}) —`);
 for (let i = 1; i <= 3; i++) {
   try {
