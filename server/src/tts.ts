@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { API_KEY, BASE_URL, MOCK, routellm, type ChatResponse } from './llm.js';
+import { API_KEY, BASE_URL, MOCK, llmRequest, type ChatResponse } from './llm.js';
 import { BRIEF_OPENING } from './brief.js';
 import { isMp3, isWav, normalizeSpeech, pcmToWav, wavSeconds } from './audio.js';
 import { elevenReady, elevenSpeak, isEleven, type ElevenCtx } from './eleven.js';
