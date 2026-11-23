@@ -12,7 +12,7 @@ import { isEmbeddable, isShort } from './youtube.js';
 import { FAL_SON, findScripted, isFalTurn } from './scripted.js';
 import { cameraList } from './camera.js';
 import { BRIEF_OPENING, BRIEF_TRIGGER } from './brief.js';
-import type { Device, Gorsel, GorselWithPhoto, BEKRIReply, Photo, Sahne, StoredMessage } from './types.js';
+import type { Device, Gorsel, GorselWithPhoto, BekriReply, Photo, Sahne, StoredMessage } from './types.js';
 
 const MAX_ROUNDS = 5;
 /** Görsel girdi modeli; yerel kullanımda Ollama'daki görsel destekli model seçilir. */
@@ -223,7 +223,7 @@ const SYMBOLIC = new Set(['kart', 'adimlar', 'liste']);
 /** Falın sunucudan eklenen son sahnesi (sesi önceden hazır) */
 const FAL_FINAL = { __falSon: true, ses: FAL_SON, gorsel: { tip: 'ikon', ikon: 'users', baslik: '100 bin takipçi', alt: 'Falınızda görünen' } };
 
-export async function runBekri(opts: RunOptions): Promise<BEKRIReply> {
+export async function runBekri(opts: RunOptions): Promise<BekriReply> {
   const { text, device, prevDevice, history, photoMode, progress } = opts;
   const t0 = Date.now();
   const since = () => `${Date.now() - t0} ms`;
@@ -273,7 +273,7 @@ export async function runBekri(opts: RunOptions): Promise<BEKRIReply> {
       }
     });
   };
-  const finish = async (detay: string): Promise<BEKRIReply> => {
+  const finish = async (detay: string): Promise<BekriReply> => {
     await chain;
     opts.onScenesDone?.(emitted.length);
     console.log(`[zaman] tüm sahneler · ${emitted.length} sahne · ${since()}`);
