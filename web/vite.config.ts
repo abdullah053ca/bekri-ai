@@ -10,7 +10,7 @@ function mediapipeWasm(): Plugin {
   const src = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'node_modules/@mediapipe/tasks-vision/wasm')
   const route = '/mediapipe/wasm/'
   return {
-    name: 'jarvis-mediapipe-wasm',
+    name: 'bekri-mediapipe-wasm',
     configureServer(server) {
       server.middlewares.use(route, (req, res, next) => {
         const file = path.join(src, path.basename((req.url || '').split('?')[0]))
@@ -33,14 +33,14 @@ export default defineConfig({
     react(),
     mediapipeWasm(),
     VitePWA({
-      // Yeni service worker hemen devreye girer (skipWaiting + clientsClaim); sayfayı main.tsx Jarvis boştayken yeniler.
+      // Yeni service worker hemen devreye girer (skipWaiting + clientsClaim); sayfayı main.tsx BEKRI boştayken yeniler.
       // Eskiden yeni sürüm ancak ikinci yenilemede geliyordu; tablet eski sürümde kalıyordu.
       registerType: 'autoUpdate',
       injectRegister: false,
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Jarvis',
-        short_name: 'Jarvis',
+        name: 'BEKRI',
+        short_name: 'BEKRI',
         description: 'Kişisel yapay zeka asistanı',
         theme_color: '#04070c',
         background_color: '#04070c',
