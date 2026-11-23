@@ -75,7 +75,7 @@ export async function saveSettings(patch: { voice?: VoiceSel; sfx?: boolean; wak
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'kaydedilemedi');
 }
 
-/** Mikrofon kaydını RouteLLM ile yazıya çevirir. */
+/** Mikrofon kaydını yerel whisper.cpp ile yazıya çevirir. */
 export async function stt(audio: Blob): Promise<string> {
   const r = await fetch('/api/stt', { method: 'POST', headers: { 'Content-Type': audio.type || 'audio/webm', ...(token ? { 'x-bekri-token': token } : {}) }, body: audio });
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'ses yazıya çevrilemedi');
