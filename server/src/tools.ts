@@ -7,7 +7,7 @@ import { lookAtCamera } from './camera.js';
 import { control, homeMode, homeState, type DeviceId } from './home.js';
 import { addBook, addBookNote, fillInBackground, findBook, setBookStatus } from './library.js';
 
-// Not: `strict` alanı bilerek yok (RouteLLM 400 döndürebiliyor).
+// Not: `strict` alanı bilerek yok (model gateway does not support the strict schema döndürebiliyor).
 export const TOOLS = [
   {
     type: 'function',
@@ -64,7 +64,7 @@ export const TOOLS = [
     type: 'function',
     function: {
       name: 'kameraya_bak',
-      description: "Evdeki kamera cihazından (Jarvis'in gözü) anlık bir kare alır ve görüntü modeline sorar. 'Mutfakta ne var', 'kahve makinesinin önünde fincan var mı', 'kapıya bak' gibi isteklerde kullanılır.",
+      description: "Evdeki kamera cihazından (BEKRI kamera sistemi) anlık bir kare alır ve görüntü modeline sorar. 'Mutfakta ne var', 'kahve makinesinin önünde fincan var mı', 'kapıya bak' gibi isteklerde kullanılır.",
       parameters: {
         type: 'object',
         properties: {
@@ -123,7 +123,7 @@ export const TOOLS = [
     type: 'function',
     function: {
       name: 'kitaplik_ekle',
-      description: "Kitaplığa bir kitap ekler (rafta yeri olmadan; El Kontrolü'nde K ile rafa yerleştirilir) ve Jarvis sayfalarını (özet, ana fikirler, yazar, temalar, benzer kitaplar) arka planda doldurur. 'Kitaplığıma Davranış'ı ekle', 'kitabın adı Davranış', 'Sapolsky'nin Davranış kitabı bende var' gibi isteklerde kullanılır.",
+      description: "Kitaplığa bir kitap ekler (rafta yeri olmadan; El Kontrolü'nde K ile rafa yerleştirilir) ve BEKRI kitap notlarını (özet, ana fikirler, yazar, temalar, benzer kitaplar) arka planda doldurur. 'Kitaplığıma Davranış'ı ekle', 'kitabın adı Davranış', 'Sapolsky'nin Davranış kitabı bende var' gibi isteklerde kullanılır.",
       parameters: {
         type: 'object',
         properties: {
@@ -138,7 +138,7 @@ export const TOOLS = [
     type: 'function',
     function: {
       name: 'kitaplik_doldur',
-      description: "Kitaplıktaki bir kitabın Jarvis sayfalarını (özet, ana fikirler, yazar hakkında, temalar, neden okumalı, benzer kitaplar) arka planda doldurur ya da yeniden yazar. 'Davranış'ın sayfalarını doldur', 'şu kitabın içini doldur' gibi.",
+      description: "Kitaplıktaki bir kitabın BEKRI kitap notlarını (özet, ana fikirler, yazar hakkında, temalar, neden okumalı, benzer kitaplar) arka planda doldurur ya da yeniden yazar. 'Davranış'ın sayfalarını doldur', 'şu kitabın içini doldur' gibi.",
       parameters: { type: 'object', properties: { kitap: { type: 'string', description: 'Kitabın adı' } }, required: ['kitap'] },
     },
   },
@@ -210,7 +210,7 @@ export const TOOLS = [
     type: 'function',
     function: {
       name: 'youtube_ara',
-      description: 'YouTube\'da video arar (Jarvis içinde oynatılabilen videolar). "… videosunu aç", "… ile ilgili bir video göster" gibi isteklerde kullanılır.',
+      description: 'YouTube\'da video arar (BEKRI içinde oynatılabilen videolar). "… videosunu aç", "… ile ilgili bir video göster" gibi isteklerde kullanılır.',
       parameters: {
         type: 'object',
         properties: { sorgu: { type: 'string', description: 'Arama sorgusu, ör. "James Webb teleskobu yeni görüntüler"' } },
@@ -222,7 +222,7 @@ export const TOOLS = [
     type: 'function',
     function: {
       name: 'youtube_ac',
-      description: 'Kullanıcının verdiği YouTube linkini (ya da video kimliğini) doğrular; Jarvis içinde oynatılabiliyorsa bilgisini döndürür.',
+      description: 'Kullanıcının verdiği YouTube linkini (ya da video kimliğini) doğrular; BEKRI içinde oynatılabiliyorsa bilgisini döndürür.',
       parameters: {
         type: 'object',
         properties: { link: { type: 'string', description: 'YouTube linki' } },
