@@ -1,43 +1,17 @@
-// Ollama'de kullanılabilen modelleri kategorize eder ve önerilen .env değerlerini yazar: `npm run models`
-// Kategori, /models'in kendi alanlarından gelir (model_type + input/output_modalities); ad tahmini yok.
+// List the local Ollama models available to BEKRI.
 import { llmRequest } from './llm.js';
-import { bestVoice, pitchSpread, rankedVoices, usableVoices } from './tts.js';
 
-
-
-interface M { id: string; model_type?: string; input_modalities?: string[]; output_modalities?: string[] }
-const all = (await llmRequest<{ data: M[] }>('/models')).data;
-const has = (m: M, side: 'input_modalities' | 'output_modalities', x: string) => !!m[side]?.includes(x);
-
-const groups: [string, (m: M) => boolean][] = [
-  
-  ['Metin', m => m.model_type === 'text_generation' && !has(m, 'input_modalities', 'image')],
-  ['Görsel girdi (fotoğraf analizi)', m => m.model_type === 'text_generation' && !m.id.startsWith('ollama') && has(m, 'input_modalities', 'image')],
-  ['Ses girdisi (STT olarak kullanılabilir)', m => has(m, 'input_modalities', 'audio') && has(m, 'output_modalities', 'text')],
-  ['Ses üretimi (TTS)', m => m.model_type === 'audio_generation'],
-  ['Görsel üretimi', m => m.model_type === 'image_generation'],
-  ['Video üretimi', m => m.model_type === 'video_generation'],
-];
-
-for (const [title, test] of groups) {
-  const ids = all.filter(test).map(m => m.id).sort();
-  console.log(`\n■ ${title} (${ids.length})\n  ${ids.join(', ') || '—'}`);
+interface ModelList { data?: { id: string }[] }
+const result = await llmRequest<ModelList>('/models');
+const ids = (result.data ?? []).map(x => x.id).filter(Boolean).sort();
+console.log('BEKRI için yerel Ollama modelleri:');
+if (!ids.length) {
+  console.log('Model bulunamadı. Önce ollama pull qwen2.5:7b çalıştırın.');
+} else {
+  for (const id of ids) console.log(`  • ${id}`);
 }
-
-const ids = new Set(all.map(m => m.id));
-const pick = (...c: string[]) => c.find(x => ids.has(x)) ?? '';
-// .env'deki ses doğrulanmışsa öneri odur; değilse en kararlı ses.
-const envOk = usableVoices().find(v => v.model === process.env.TTS_MODEL && v.voice === process.env.TTS_VOICE);
-const voice = envOk ?? bestVoice();
-console.log(`
-Toplam ${all.length} model.
-
-Önerilen .env (ölçümlere göre, 5 Ekim 2026):
-OLLAMA_MODEL=qwen2.5:7b
-TTS_MODEL=${voice?.model ?? pick('gpt-audio-1.5')}               # sabit ses; Gemini TTS her istekte farklı perde üretiyor
-TTS_VOICE=${voice?.voice ?? 'onyx'}${voice ? '' : '                        # npm run voices ile doğrulanmış seslerden seç'}
-STT_MODEL=${pick('gemini-2.5-flash', 'gemini-3.5-flash')}               # /audio/transcriptions yok; ses girdili sohbet modeli
-IMAGE_MODEL=${pick('flux2', 'flux_pro')}                        # temsili görseller (~8 sn)
-VISION_MODEL=llava                       # yerel görsel model`);
-console.log(`\nEn kararlı doğrulanmış sesler (npm run voices):`);
-for (const v of rankedVoices().slice(0, 6)) console.log(`  ${v.id.padEnd(32)} ±${pitchSpread(v)} Hz · ${v.f0!.length} ölçüm · ~${Math.round(v.f0!.reduce((a, b) => a + b, 0) / v.f0!.length)} Hz`);
+console.log('\nÖnerilen modeller:');
+console.log('  Sohbet + araç kullanımı: qwen2.5:7b');
+console.log('  Görsel anlama: qwen2.5vl:3b (VISION_MODEL)');
+console.log('  Ses tanıma: whisper.cpp (WHISPER_MODEL_PATH ile yerel model)');
+console.log('  Seslendirme: browser (tarayıcı konuşma motoru)');
