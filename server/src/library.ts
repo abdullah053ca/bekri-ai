@@ -386,7 +386,7 @@ const fillPrompt = (b: Kitap, shelf: string[]) =>
 /** Sohbet modeli çağrısı (testte sahte cevapla değiştirilir) */
 export const chatDeps = {
   async chat(prompt: string): Promise<string> {
-    if (MOCK) return JSON.stringify({ biliyorum: true, ozet: 'Örnek özet: gerçek içerik için ABACUS_API_KEY gerekir. Bu bir deneme metnidir. Kitap kaydedildi.', anaFikirler: ['Deneme fikri bir.', 'Deneme fikri iki.', 'Deneme fikri üç.', 'Deneme fikri dört.'], yazarHakkinda: null, temalar: ['deneme'], nedenOku: null, kimeUygun: null, benzer: [] });
+    if (MOCK) return JSON.stringify({ biliyorum: true, ozet: 'Örnek özet: gerçek içerik için Ollama yerel modeli gerekir. Bu bir deneme metnidir. Kitap kaydedildi.', anaFikirler: ['Deneme fikri bir.', 'Deneme fikri iki.', 'Deneme fikri üç.', 'Deneme fikri dört.'], yazarHakkinda: null, temalar: ['deneme'], nedenOku: null, kimeUygun: null, benzer: [] });
     const r = await llmRequest<ChatResponse>('/chat/completions', { model: CHAT_MODEL, messages: [{ role: 'user', content: prompt }] });
     return String(r.choices?.[0]?.message?.content ?? '');
   },
