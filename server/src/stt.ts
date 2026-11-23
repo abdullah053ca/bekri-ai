@@ -1,7 +1,7 @@
 // Ses tanıma (STT) BEKRI model gateway'den: tarayıcının Web Speech API'si iPhone'da güvenilir değil, yalnızca yedek.
 // Ölçüm (5 Ekim 2026): /audio/transcriptions BEKRI model gateway'de yok (404). Ses girdili sohbet modelleri arasında
 // gemini-2.5-flash 2,7 sn'de birebir doğru yazdı; gemini-2.5-pro 9 sn; gpt-audio-1.5 metni bozdu.
-import { API_KEY, BASE_URL, routellm, type ChatResponse } from './llm.js';
+import { API_KEY, BASE_URL, llmRequest, type ChatResponse } from './llm.js';
 
 export const STT_MODEL = process.env.STT_MODEL || 'gemini-2.5-flash';
 let transcriptionsEndpoint: boolean | null = null; // ilk denemeden sonra hafızada
