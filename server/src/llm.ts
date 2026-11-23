@@ -16,8 +16,6 @@ export class LLMError extends Error {
     super(`BEKRI model gateway ${status}: ${body.slice(0, 300)}`);
   }
 }
-// Transitional export for modules being migrated; this is not a RouteLLM dependency.
-export { LLMError as LLMError };
 
 function headers(extra: Record<string, string> = {}) {
   return {
