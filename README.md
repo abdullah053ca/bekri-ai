@@ -37,7 +37,7 @@ npm run dev            # http://localhost:5173
 İlk kontrol (önerilir):
 
 ```bash
-npm run test           # RSS kaynaklarını ve BEKRI model gateway tool calling'i test eder
+npm run test           # yerel model bağlantısını test eder (web kapalıysa RSS testini atlar)
 npm run models         # yerel Ollama modellerini listeler
 ```
 
@@ -64,29 +64,18 @@ Her cihaz kendini otomatik tanır; yanlışsa *☰ → Ayarlar → Bu cihaz* kı
 
 ## Yerel model yapılandırması
 
-BEKRI varsayılan olarak Ollama'nın yerel OpenAI-uyumlu API'sine bağlanır. Sohbet ve görsel modelini `.env` içinden seçebilirsin. Yerel model kullanmak için bulut hesabı veya API anahtarı gerekmez.
+BEKRI varsayılan olarak yalnızca kendi bilgisayarındaki Ollama'ya bağlanır.
 
-1. Ollama'yı başlat ve kullanmak istediğin modeli indir.
-2. Önerilen eşleme (5 Ekim 2026 ölçümlerine göre):
+```bash
+ollama pull qwen2.5:7b
+ollama pull qwen2.5vl:3b
+```
 
-   | İstek türü | Model | Neden |
-   |---|---|---|
-   | Kısa sohbet, selam | hızlı ucuz model (ör. `gemini-2.5-flash`) | `route-llm` "Selam Bekri" için de akıl yürüten modeli seçebiliyor: ilk token 3,2–3,5 sn. `gemini-2.5-flash` ölçümde ~1 sn. |
-   | Gündem brifingi (araç kullanımı + uzun JSON) | güçlü model (ör. `gpt-5.6-luna`) | Üç aracı tek turda paralel çağırıp 6–9 sahnelik JSON'u güvenilir yazıyor. |
-   | Görsel/fotoğraf analizi | görsel girdi destekli model (ör. `gemini-3.8-flash`) | Kamera sorusunu `route-llm` de buna yönlendirdi. |
-   | Diğer her şey | `route-llm` | |
+`server/.env` içinde:
+- `OLLAMA_MODEL=qwen2.5:7b` — sohbet ve araç kullanımı.
+- `VISION_MODEL=qwen2.5vl:3b` — fotoğraf/kamera analizi.
 
-3. Sunucuyu yeniden başlat.
-
-   ```
-   CHAT_MODEL=bekri-router
-   ```
-
-4. Ollama modeli yerel bilgisayarda çalışır; internet bağlantısı gerekmez.
-
-Notlar:
-- Router TTS için **kullanılmaz**: sesin her cevapta aynı kalması için TTS sabit bir model + sabit bir ses kimliği ister; `TTS_MODEL` yönlendirmeli bir model olursa sunucu açılışta uyarır ve reddeder.
-- Hangi modellerin hangi türde olduğunu görmek için `npm run models` (metin / görsel girdi / ses / görsel üretim / video olarak gruplar ve önerilen `.env` değerlerini yazar).
+Ollama modelleri bilgisayarında çalışır; API anahtarı veya bulut hesabı gerekmez. Modelin hız ve bellek ihtiyacı bilgisayarının donanımına bağlıdır.
 
 ## Seslendiren
 
