@@ -282,12 +282,11 @@ async function getNewsStats(): Promise<NewsStats> {
   }
 }
 
-// ---------- Sistem: RouteLLM gecikmesi ----------
+// ---------- Sistem: BEKRI local model gecikmesi ----------
 
 const pingLocalModel = cached<{ ms: number; ok: boolean }>(60_000, 60_000, 'yerel model gecikmesi', async () => {
-  if (!API_KEY) return { ms: 0, ok: false };
   const t0 = performance.now();
-  const r = await fetch(`${BASE_URL}/models`, { headers: { Authorization: `Bearer ${API_KEY}` }, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+  const r = await fetch(`${BASE_URL}/models`, { headers: API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}, signal: AbortSignal.timeout(FETCH_TIMEOUT) });
   await r.arrayBuffer();
   return { ms: Math.round(performance.now() - t0), ok: r.ok };
 });
